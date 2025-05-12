@@ -17,8 +17,8 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "Grupo de Teatro",
-  description: "O espetáculo está quase pronto — fale conosco nos bastidores!",
+  title: "Grupo Teatral Gorki",
+  description: "Teatro e Cultura",
 };
 
 export default function RootLayout({
