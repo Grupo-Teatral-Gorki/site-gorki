@@ -10,11 +10,11 @@ export default function Home() {
         width={400}
         height={200}
       />
-      <h1 className="text-4xl font-bold mb-4">🎭 Preparando o Espetáculo 🎭</h1>
+      <h1 className="text-4xl font-bold mb-4">🚧 Em construção 🚧</h1>
 
       <p className="text-lg mb-6 font-bold">
-        Estamos ensaiando os últimos atos. Enquanto isso, fale com a gente nos
-        bastidores!
+        Estamos trabalhando para deixar tudo pronto. Enquanto isso, fale com a
+        gente!
       </p>
 
       <div className="flex gap-6 justify-center">
