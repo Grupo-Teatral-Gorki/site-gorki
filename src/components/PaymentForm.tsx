@@ -35,7 +35,7 @@ const PaymentFormContent = ({
   const [paymentMethod, setPaymentMethod] = useState<'card' | 'pix'>('card');
   const [processing, setProcessing] = useState(false);
   const [pixQrCode, setPixQrCode] = useState<string | null>(null);
-  const [paymentIntentId, setPaymentIntentId] = useState<string | null>(null);
+  const [, setPaymentIntentId] = useState<string | null>(null);
 
   const createPaymentIntent = async (method: 'card' | 'pix') => {
     try {
@@ -136,12 +136,12 @@ const PaymentFormContent = ({
       if (error) {
         onPaymentError(error.message || 'Erro no pagamento PIX');
       } else if (paymentIntent?.next_action && 'pix_display_qr_code' in paymentIntent.next_action) {
-        const pixAction = paymentIntent.next_action as any;
+        const pixAction = paymentIntent.next_action as { pix_display_qr_code: { data: string } };
         setPixQrCode(pixAction.pix_display_qr_code.data);
         // Poll for payment status
         pollPaymentStatus(paymentIntentId);
       }
-    } catch (error) {
+    } catch (_error) {
       onPaymentError('Erro ao processar pagamento PIX');
     } finally {
       setProcessing(false);

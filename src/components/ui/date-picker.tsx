@@ -27,7 +27,7 @@ export function DatePicker({
   const [open, setOpen] = React.useState(false);
 
   // Converter string DD-MM-AAAA para Date
-  const parseDate = (dateString: string): Date | undefined => {
+  const _parseFromInput = (dateString: string): Date | undefined => {
     if (!dateString) return undefined;
 
     const parts = dateString.split("-");
@@ -44,7 +44,7 @@ export function DatePicker({
   };
 
   // Converter Date para string DD-MM-AAAA
-  const formatDate = (date: Date): string => {
+  const _formatForInput = (date: Date): string => {
     const day = date.getDate().toString().padStart(2, "0");
     const month = (date.getMonth() + 1).toString().padStart(2, "0");
     const year = date.getFullYear();

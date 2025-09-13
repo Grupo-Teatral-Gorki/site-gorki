@@ -2,7 +2,6 @@
 import { useEffect, useState } from "react";
 import { Dialog, DialogTrigger, DialogContent, DialogTitle } from "./ui/dialog";
 import { useSiteDataContext } from "@/context/SiteDataContext";
-import { Link } from "react-router-dom";
 import {
   Drawer,
   DrawerTrigger,
@@ -118,7 +117,7 @@ const UpcomingEvents = () => {
       const ticketId = `${selectedEvent.id}-${Date.now()}-${i}`;
       
       // Create ticket data for QR code
-      const ticketData = {
+      const _ticketData = {
         ticketId,
         eventTitle: selectedEvent.title,
         eventDate: selectedEvent.date,
@@ -158,8 +157,8 @@ const UpcomingEvents = () => {
           qrCode,
           purchaseDate,
         });
-      } catch (error) {
-        console.error('Error generating QR code for ticket', i, ':', error);
+      } catch (_error) {
+        console.error('Error generating QR code for ticket', i, ':', _error);
       }
     }
 
@@ -205,8 +204,8 @@ const UpcomingEvents = () => {
       setShowTickets(true);
       setPaymentIntentId(paymentIntentId);
       
-    } catch (error) {
-      console.error('Error generating tickets after payment:', error);
+    } catch (_error) {
+      console.error('Error generating tickets after payment:', _error);
       alert('Pagamento realizado, mas houve erro ao gerar os ingressos. Entre em contato conosco.');
     }
   };
@@ -365,7 +364,7 @@ const UpcomingEvents = () => {
                                 )}
                               </div>
                               
-                              {generatedTickets.map((ticket, index) => (
+                              {generatedTickets.map((ticket) => (
                                 <div key={ticket.id} className="bg-white rounded-xl p-6 shadow-lg border border-gray-200">
                                   <div className="flex flex-col items-center space-y-4">
                                     <div className="text-center">

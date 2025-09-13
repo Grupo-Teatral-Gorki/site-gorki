@@ -1,4 +1,5 @@
-import { useSearchParams } from "react-router-dom";
+'use client'
+import { useSearchParams } from "next/navigation";
 import { useMemo } from "react";
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -47,7 +48,7 @@ interface EnrollmentPageProps {
 }
 
 const EnrollmentPage = ({ courseType }: EnrollmentPageProps) => {
-  const [params] = useSearchParams();
+  const params = useSearchParams();
   // Usar courseType da prop se disponível, senão buscar na URL
   const course = courseType || params.get("curso") || "adulto";
   const schema = useMemo(() => getSchema(course), [course]);
