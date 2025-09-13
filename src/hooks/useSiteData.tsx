@@ -78,6 +78,23 @@ export function useSiteData() {
 
   useEffect(() => {
     async function fetchSite() {
+      // Initialize fallback data first to prevent hydration mismatches
+      const fallbackData: Omit<SiteData, "id"> = {
+        gallery: [],
+        home: {
+          banner: [],
+          decorationImages: { 
+            image: "", 
+            alt: "" 
+          },
+          nextEvents: []
+        },
+        history: [],
+        catalog: [],
+        aboutUs: [],
+        courses: []
+      };
+
       try {
         const docRef = doc(db, "site", SITE_DOC_ID);
         const docSnap = await getDoc(docRef);
@@ -88,20 +105,52 @@ export function useSiteData() {
             ...(docSnap.data() as Omit<SiteData, "id">),
           });
         } else {
-          const defaultData = {} as Omit<SiteData, "id">;
-          await setDoc(docRef, defaultData);
+          await setDoc(docRef, fallbackData);
           setSiteData({
             id: SITE_DOC_ID,
-            ...defaultData,
+            ...fallbackData,
           });
         }
       } catch (error) {
         console.error("Error fetching site data:", error);
+        console.warn("Firebase failed, using fallback data");
+        
+        setSiteData({
+          id: SITE_DOC_ID,
+          ...fallbackData,
+        });
       } finally {
         setLoading(false);
       }
     }
-    fetchSite();
+
+    // Only run on client side to prevent hydration issues
+    if (typeof window !== 'undefined') {
+      fetchSite();
+    } else {
+      // On server side, set fallback data immediately
+      const fallbackData: Omit<SiteData, "id"> = {
+        gallery: [],
+        home: {
+          banner: [],
+          decorationImages: { 
+            image: "", 
+            alt: "" 
+          },
+          nextEvents: []
+        },
+        history: [],
+        catalog: [],
+        aboutUs: [],
+        courses: []
+      };
+      
+      setSiteData({
+        id: SITE_DOC_ID,
+        ...fallbackData,
+      });
+      setLoading(false);
+    }
   }, []);
 
   // Atualiza o documento no Firestore e o estado local

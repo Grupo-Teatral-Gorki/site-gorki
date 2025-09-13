@@ -1,0 +1,172 @@
+import { NextRequest, NextResponse } from 'next/server';
+import crypto from 'crypto';
+
+const MERCADOPAGO_BASE_URL = 'https://api.mercadopago.com';
+
+// Validate webhook signature according to MercadoPago docs
+function validateSignature(xSignature: string, xRequestId: string, dataID: string, body: string): boolean {
+  if (!process.env.MERCADOPAGO_WEBHOOK_SECRET) {
+    console.warn('MERCADOPAGO_WEBHOOK_SECRET not configured - skipping signature validation');
+    return true; // Allow for development, but log warning
+  }
+
+  try {
+    // Extract timestamp and signature from x-signature header
+    const parts = xSignature.split(',');
+    let ts = '';
+    let hash = '';
+    
+    for (const part of parts) {
+      const [key, value] = part.split('=');
+      if (key === 'ts') ts = value;
+      if (key === 'v1') hash = value;
+    }
+
+    // Create the signed string according to MercadoPago format
+    const signedString = `id:${dataID};request-id:${xRequestId};ts:${ts};`;
+    
+    // Generate HMAC signature
+    const hmac = crypto.createHmac('sha256', process.env.MERCADOPAGO_WEBHOOK_SECRET);
+    hmac.update(signedString);
+    const expectedSignature = hmac.digest('hex');
+    
+    return expectedSignature === hash;
+  } catch (error) {
+    console.error('Signature validation error:', error);
+    return false;
+  }
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    // Get headers for signature validation
+    const xSignature = request.headers.get('x-signature');
+    const xRequestId = request.headers.get('x-request-id');
+    
+    // Get query parameters
+    const url = new URL(request.url);
+    const dataID = url.searchParams.get('data.id');
+    const type = url.searchParams.get('type');
+    
+    // Get body
+    const body = await request.text();
+    let parsedBody;
+    
+    try {
+      parsedBody = JSON.parse(body);
+    } catch (e) {
+      console.error('Invalid JSON in webhook body');
+      return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
+    }
+
+    console.log('Webhook received:', {
+      type,
+      dataID,
+      action: parsedBody.action,
+      live_mode: parsedBody.live_mode
+    });
+
+    // Validate signature for security
+    if (xSignature && xRequestId && dataID) {
+      const isValid = validateSignature(xSignature, xRequestId, dataID, body);
+      if (!isValid) {
+        console.error('Invalid webhook signature');
+        return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
+      }
+    }
+
+    // Process payment notifications
+    if (type === 'payment' && parsedBody.action === 'payment.updated') {
+      const paymentId = parsedBody.data.id;
+      
+      try {
+        // Fetch payment details from MercadoPago API
+        const response = await fetch(`${MERCADOPAGO_BASE_URL}/v1/payments/${paymentId}`, {
+          headers: {
+            'Authorization': `Bearer ${process.env.MERCADOPAGO_ACCESS_TOKEN}`,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (!response.ok) {
+          console.error('Failed to fetch payment details:', response.status);
+          return NextResponse.json({ error: 'Failed to fetch payment' }, { status: 500 });
+        }
+
+        const paymentInfo = await response.json();
+        
+        console.log('Payment details:', {
+          id: paymentInfo.id,
+          status: paymentInfo.status,
+          status_detail: paymentInfo.status_detail,
+          external_reference: paymentInfo.external_reference,
+          transaction_amount: paymentInfo.transaction_amount,
+          payment_method_id: paymentInfo.payment_method_id,
+          date_created: paymentInfo.date_created,
+          date_approved: paymentInfo.date_approved,
+        });
+
+        // Here you would typically:
+        // 1. Update your database with the payment status
+        // 2. Send confirmation emails
+        // 3. Generate tickets for approved payments
+        // 4. Handle refunds for cancelled payments
+        
+        // Generate tickets for approved payments
+        if (paymentInfo.status === 'approved') {
+          console.log('✅ Payment approved:', paymentInfo.external_reference);
+          
+          // Generate tickets
+          try {
+            const ticketResponse = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://56ba979fa109.ngrok-free.app'}/api/tickets/generate`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                paymentId: paymentInfo.id,
+                externalReference: paymentInfo.external_reference,
+                customerInfo: {
+                  name: paymentInfo.payer?.first_name + ' ' + (paymentInfo.payer?.last_name || ''),
+                  email: paymentInfo.payer?.email,
+                  phone: paymentInfo.payer?.phone?.number
+                },
+                eventInfo: {
+                  id: paymentInfo.metadata?.event_id || 'unknown',
+                  title: paymentInfo.metadata?.event_title || 'Evento',
+                  date: paymentInfo.metadata?.event_date || 'Data não informada',
+                  location: paymentInfo.metadata?.event_location || 'Local não informado'
+                },
+                ticketQuantity: parseInt(paymentInfo.metadata?.ticket_quantity || '1')
+              }),
+            });
+
+            if (ticketResponse.ok) {
+              const ticketData = await ticketResponse.json();
+              console.log(`Generated ${ticketData.totalTickets} tickets for payment ${paymentInfo.id}`);
+            } else {
+              console.error('Failed to generate tickets:', await ticketResponse.text());
+            }
+          } catch (error) {
+            console.error('Error generating tickets:', error);
+          }
+        } else if (paymentInfo.status === 'rejected') {
+          console.log('❌ Payment rejected:', paymentInfo.external_reference);
+        } else if (paymentInfo.status === 'pending') {
+          console.log('⏳ Payment pending:', paymentInfo.external_reference);
+        }
+
+      } catch (error) {
+        console.error('Error processing payment webhook:', error);
+        return NextResponse.json({ error: 'Processing failed' }, { status: 500 });
+      }
+    }
+
+    // Return 200 OK as required by MercadoPago
+    return NextResponse.json({ received: true }, { status: 200 });
+    
+  } catch (error) {
+    console.error('Webhook error:', error);
+    return NextResponse.json({ error: 'Webhook processing failed' }, { status: 500 });
+  }
+}

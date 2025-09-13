@@ -10,7 +10,7 @@ import {
   DrawerClose,
 } from "@/components/ui/drawer";
 import QRCode from "qrcode";
-import PaymentForm from "./PaymentForm";
+import MercadoPagoPayment from "./MercadoPagoPayment";
 
 interface EventData {
   title: string;
@@ -333,17 +333,19 @@ const UpcomingEvents = () => {
 
                           {showPayment ? (
                             /* Payment Form */
-                            <PaymentForm
+                            <MercadoPagoPayment
                               amount={calculateTotal(event.price, ticketQuantity)}
                               customerInfo={customerInfo}
                               eventInfo={{
                                 title: event.title,
                                 date: event.date,
                                 location: event.location,
+                                price: event.price,
+                                id: event.id,
                               }}
                               ticketQuantity={ticketQuantity}
-                              onPaymentSuccess={handlePaymentSuccess}
-                              onPaymentError={handlePaymentError}
+                              onSuccess={handlePaymentSuccess}
+                              onError={handlePaymentError}
                               onCancel={handlePaymentCancel}
                             />
                           ) : showTickets ? (
@@ -538,7 +540,7 @@ const UpcomingEvents = () => {
                           {/* Checkout Button */}
                           <button
                             type="button"
-onClick={handleCheckout}
+                            onClick={handleCheckout}
                             className="w-full bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-black font-bold py-4 px-6 rounded-xl transition-all duration-200 text-lg shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
                           >
                             Finalizar Compra
