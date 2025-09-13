@@ -77,7 +77,7 @@ export function DatePicker({
     return "";
   };
 
-  const date = parseDate(value || "");
+  const date = _parseFromInput(value || "");
 
   console.log("DatePicker render:", { value, date, open });
 
@@ -105,7 +105,7 @@ export function DatePicker({
             onSelect={(selectedDate) => {
               console.log("Date selected:", selectedDate);
               if (selectedDate) {
-                onChange(formatDate(selectedDate));
+                onChange(_formatForInput(selectedDate));
                 setOpen(false);
               }
             }}

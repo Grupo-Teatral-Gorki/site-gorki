@@ -1,7 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useSiteData } from "@/hooks/useSiteData";
-import { useToast } from "@/hooks/use-toast";
 import FileUpload from "@/components/FileUpload";
 
 type BannerItem = {
@@ -87,7 +86,6 @@ export default function AdminPage() {
 
   // Firebase hooks
   const { siteData: firebaseSiteData, loading, saveSiteDoc } = useSiteData();
-  const { toast } = useToast();
   const [siteData, setSiteData] = useState<SiteData>(defaultSiteData);
 
   useEffect(() => {
@@ -237,17 +235,11 @@ export default function AdminPage() {
   const handleSiteUpdate = async () => {
     try {
       await saveSiteDoc(siteData);
-      toast({
-        title: "Sucesso!",
-        description: "Dados salvos com sucesso no Firebase.",
-      });
+      console.log("Dados salvos com sucesso no Firebase.");
+      alert("Dados salvos com sucesso!");
     } catch (error) {
       console.error("Erro ao salvar dados:", error);
-      toast({
-        title: "Erro",
-        description: "Erro ao salvar dados. Verifique o console para mais detalhes.",
-        variant: "destructive",
-      });
+      alert("Erro ao salvar dados. Verifique o console para mais detalhes.");
     }
   };
 
