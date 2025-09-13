@@ -1,17 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ticketStore, type TicketData } from '@/lib/ticketStore';
 
+// CORS headers
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+};
+
+export async function OPTIONS() {
+  return new Response(null, { status: 200, headers: corsHeaders });
+}
+
 export async function GET(
   request: NextRequest,
-  { params }: { params: { paymentId: string } }
+  { params }: { params: Promise<{ paymentId: string }> }
 ) {
   try {
-    const paymentId = params.paymentId;
+    const { paymentId } = await params;
 
     if (!paymentId) {
       return NextResponse.json(
         { error: 'ID do pagamento é obrigatório' },
-        { status: 400 }
+        { status: 400, headers: corsHeaders }
       );
     }
 
@@ -49,7 +60,7 @@ export async function GET(
             allPaymentIds: allPaymentIds
           }
         },
-        { status: 404 }
+        { status: 404, headers: corsHeaders }
       );
     }
 
@@ -57,13 +68,13 @@ export async function GET(
       success: true,
       tickets,
       totalTickets: tickets.length
-    });
+    }, { headers: corsHeaders });
 
   } catch (error) {
     console.error('Error fetching tickets:', error);
     return NextResponse.json(
       { error: 'Erro ao buscar ingressos' },
-      { status: 500 }
+      { status: 500, headers: corsHeaders }
     );
   }
 }

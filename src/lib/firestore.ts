@@ -132,8 +132,8 @@ class FirestoreTicketStore {
       const ticketsRef = collection(db, this.ticketsCollection);
       const q = query(
         ticketsRef, 
-        where('paymentId', '==', paymentId),
-        orderBy('ticketIndex', 'asc')
+        where('paymentId', '==', paymentId)
+        // Removed orderBy to avoid index requirement - we'll sort in memory
       );
       
       const querySnapshot = await getDocs(q);
@@ -160,6 +160,9 @@ class FirestoreTicketStore {
           usedAt: data.usedAt?.toDate?.()?.toISOString() || data.usedAt
         });
       });
+
+      // Sort tickets by ticketIndex in memory to avoid needing composite index
+      tickets.sort((a, b) => a.ticketIndex - b.ticketIndex);
 
       return tickets;
     } catch (error) {

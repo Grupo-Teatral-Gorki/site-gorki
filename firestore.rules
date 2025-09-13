@@ -1,0 +1,20 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Allow read/write access to tickets collection
+    match /tickets/{ticketId} {
+      allow read, write: if true;
+    }
+    
+    // Allow read/write access to payments collection
+    match /payments/{paymentId} {
+      allow read, write: if true;
+    }
+    
+    // Allow read/write access to site data collection
+    match /siteData/{document=**} {
+      allow read, write: if true;
+    }
+  }
+}

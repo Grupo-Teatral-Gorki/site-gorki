@@ -24,6 +24,7 @@ export default function PaymentSuccess() {
   const [error, setError] = useState('');
   const [emailAddress, setEmailAddress] = useState('');
   const [sendingEmail, setSendingEmail] = useState(false);
+  const [generatingPDF, setGeneratingPDF] = useState(false);
 
   useEffect(() => {
     // Extract payment information from URL parameters
@@ -129,6 +130,7 @@ export default function PaymentSuccess() {
   const downloadAllTicketsPDF = async () => {
     if (!tickets.length) return;
     
+    setGeneratingPDF(true);
     try {
       const response = await fetch('/api/tickets/generate-pdf', {
         method: 'POST',
@@ -142,36 +144,23 @@ export default function PaymentSuccess() {
       });
 
       if (response.ok) {
-        const htmlContent = await response.text();
-        
-        // Create a new window/tab with the HTML content for printing
-        const printWindow = window.open('', '_blank');
-        if (printWindow) {
-          printWindow.document.write(htmlContent);
-          printWindow.document.close();
-          
-          // Wait for content to load then trigger print dialog
-          printWindow.onload = () => {
-            setTimeout(() => {
-              printWindow.print();
-            }, 500);
-          };
-        } else {
-          // Fallback: download as HTML file
-          const blob = new Blob([htmlContent], { type: 'text/html' });
-          const url = window.URL.createObjectURL(blob);
-          const link = document.createElement('a');
-          link.href = url;
-          link.download = `ingressos-${paymentData.paymentId}.html`;
-          link.click();
-          window.URL.revokeObjectURL(url);
-        }
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `ingressos-${paymentData.paymentId || 'tickets'}.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
       } else {
         alert('Erro ao gerar PDF dos ingressos');
       }
     } catch (error) {
       console.error('Error generating PDF:', error);
       alert('Erro ao gerar PDF dos ingressos');
+    } finally {
+      setGeneratingPDF(false);
     }
   };
 
@@ -286,55 +275,9 @@ export default function PaymentSuccess() {
                 {paymentData.paymentId && (
                   <p><span className="font-medium">ID:</span> {paymentData.paymentId}</p>
                 )}
-                {paymentData.externalReference && (
-                  <p><span className="font-medium">Referência:</span> {paymentData.externalReference}</p>
-                )}
-                {paymentData.paymentType && (
-                  <p><span className="font-medium">Método:</span> {paymentData.paymentType}</p>
-                )}
               </div>
             </div>
           )}
-
-          {/* Email and PDF Actions */}
-          {tickets.length > 0 && (
-            <div className="bg-blue-50 rounded-lg p-6 mb-6">
-              <h3 className="font-semibold text-blue-900 mb-4">Enviar ou Baixar Ingressos</h3>
-              
-              {/* Email Section */}
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-blue-800 mb-2">
-                  Enviar por E-mail
-                </label>
-                <div className="flex gap-2">
-                  <input
-                    type="email"
-                    value={emailAddress}
-                    onChange={(e) => setEmailAddress(e.target.value)}
-                    placeholder="seu@email.com"
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  />
-                  <button
-                    onClick={sendTicketsByEmail}
-                    disabled={!emailAddress || sendingEmail}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:bg-gray-400"
-                  >
-                    {sendingEmail ? 'Enviando...' : 'Enviar'}
-                  </button>
-                </div>
-              </div>
-
-              {/* PDF Download */}
-              <button
-                onClick={downloadAllTicketsPDF}
-                className="w-full bg-green-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-green-700 transition-colors mb-2"
-              >
-                📄 Baixar Todos os Ingressos (PDF)
-              </button>
-            </div>
-          )}
-
-          {/* Event Info */}
           {tickets.length > 0 && (
             <div className="bg-purple-50 rounded-lg p-4 mb-6">
               <h2 className="font-semibold text-purple-900 mb-2">Informações do Evento</h2>
@@ -347,72 +290,76 @@ export default function PaymentSuccess() {
               </div>
             </div>
           )}
+
+          {/* PDF Download */}
+          {tickets.length > 0 && (
+            <div className="bg-green-50 rounded-lg p-6 mb-6">
+              <h3 className="font-semibold text-green-900 mb-4">Baixar Ingressos</h3>
+              
+              <button
+                onClick={downloadAllTicketsPDF}
+                disabled={generatingPDF}
+                className="w-full bg-green-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-green-700 transition-colors disabled:bg-green-400 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                {generatingPDF ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    Gerando PDF...
+                  </>
+                ) : (
+                  <>
+                    📄 Baixar Todos os Ingressos (PDF)
+                  </>
+                )}
+              </button>
+            </div>
+          )}
+
+          {/* Event Info */}
+          
         </div>
 
-        {/* QR Codes Display */}
-        {tickets.length > 0 ? (
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {tickets.map((ticket, index) => (
-              <div key={ticket.ticketId} className="bg-white rounded-lg shadow-lg overflow-hidden">
-                <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-4">
-                  <h3 className="font-bold text-lg">Ingresso #{index + 1}</h3>
-                  <p className="text-sm opacity-90">{ticket.ticketNumber}</p>
-                </div>
-                
-                <div className="p-6 text-center">
-                  {qrCodes[ticket.ticketId] ? (
-                    <div className="mb-4">
-                      <img 
-                        src={qrCodes[ticket.ticketId]} 
-                        alt={`QR Code para ${ticket.ticketNumber}`}
-                        className="mx-auto mb-2"
-                      />
-                      <p className="text-xs text-gray-500">
-                        Apresente este QR Code na entrada
-                      </p>
-                    </div>
-                  ) : (
-                    <div className="w-48 h-48 bg-gray-200 rounded-lg flex items-center justify-center mx-auto mb-4">
-                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                    </div>
-                  )}
-                  
-                  <button
-                    onClick={() => downloadSingleTicket(ticket)}
-                    className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-blue-700 transition-colors mb-2"
-                  >
-                    Baixar Este Ingresso
-                  </button>
-                  
-                  <p className="text-xs text-gray-500">
-                    Válido apenas uma vez
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          /* No tickets found - show message */
+        {/* Tickets Status - No Display */}
+        {tickets.length < 0 && (
           <div className="bg-white rounded-lg shadow-lg p-8 text-center">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">Processando Ingressos</h2>
-            <p className="text-gray-600 mb-6">
-              Seus ingressos estão sendo processados. Eles aparecerão aqui automaticamente quando estiverem prontos.
-            </p>
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          </div>
+          <h2 className="text-xl font-bold text-gray-900 mb-4">Processando Ingressos</h2>
+          <p className="text-gray-600 mb-6">
+            Seus ingressos estão sendo processados. Eles aparecerão aqui automaticamente quando estiverem prontos.
+          </p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+        </div>
         )}
 
         {/* Navigation */}
         <div className="mt-8 text-center space-y-3">
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
-            <h3 className="font-semibold text-yellow-800 mb-2">Instruções Importantes</h3>
-            <ul className="text-sm text-yellow-700 text-left space-y-1">
-              <li>• Chegue com antecedência ao evento</li>
-              <li>• Apresente um documento de identidade junto com o ingresso</li>
-              <li>• Cada QR Code é válido apenas uma vez</li>
-              <li>• Mantenha seus ingressos salvos no celular ou impressos</li>
-              <li>• Em caso de problemas, entre em contato conosco</li>
-            </ul>
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 mb-6">
+            <h3 className="font-semibold text-yellow-800 mb-4 text-center">Instruções Importantes</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <ul className="text-sm text-yellow-700 space-y-2">
+                <li className="flex items-start">
+                  <span className="text-yellow-600 mr-2">•</span>
+                  <span>Chegue com antecedência ao evento</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-yellow-600 mr-2">•</span>
+                  <span>Apresente um documento de identidade junto com o ingresso</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-yellow-600 mr-2">•</span>
+                  <span>Cada QR Code é válido apenas uma vez</span>
+                </li>
+              </ul>
+              <ul className="text-sm text-yellow-700 space-y-2">
+                <li className="flex items-start">
+                  <span className="text-yellow-600 mr-2">•</span>
+                  <span>Mantenha seus ingressos salvos no celular ou impressos</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-yellow-600 mr-2">•</span>
+                  <span>Em caso de problemas, entre em contato conosco</span>
+                </li>
+              </ul>
+            </div>
           </div>
           
           <div className="flex flex-col sm:flex-row gap-3 justify-center">

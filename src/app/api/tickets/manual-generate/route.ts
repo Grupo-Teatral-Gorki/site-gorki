@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
 import { ticketStore } from '@/lib/ticketStore';
-import { FirestoreTicketStore, type PaymentData } from '@/lib/firestore';
+import { FirestoreTicketStore } from '@/lib/firestore';
 
 // CORS headers
 const corsHeaders = {
@@ -18,27 +18,29 @@ export async function POST(request: NextRequest) {
   try {
     const { paymentId, externalReference, customerInfo, eventInfo, ticketQuantity } = await request.json();
 
-    if (!paymentId || !externalReference || !customerInfo || !eventInfo || !ticketQuantity) {
+    if (!paymentId || !customerInfo || !eventInfo || !ticketQuantity) {
       return NextResponse.json(
         { error: 'Dados obrigatórios ausentes' },
         { status: 400, headers: corsHeaders }
       );
     }
 
-    // First, save payment data to payments collection
+    console.log('Manual ticket generation for payment:', paymentId);
+
+    // Save payment data first
     const store = ticketStore as FirestoreTicketStore;
-    const paymentData: PaymentData = {
-      paymentId,
+    const paymentData = {
+      paymentId: paymentId.toString(),
       status: 'approved',
-      externalReference,
+      externalReference: externalReference || `manual-${paymentId}`,
       customerName: customerInfo.name,
       customerEmail: customerInfo.email,
-      eventId: eventInfo.id,
+      eventId: eventInfo.id || 'manual-event',
       eventTitle: eventInfo.title,
       eventDate: eventInfo.date,
       eventLocation: eventInfo.location,
-      ticketQuantity,
-      totalAmount: 0, // This should come from the payment data
+      ticketQuantity: parseInt(ticketQuantity),
+      totalAmount: 0,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
@@ -49,20 +51,20 @@ export async function POST(request: NextRequest) {
     const tickets = [];
     for (let i = 1; i <= ticketQuantity; i++) {
       const ticketId = crypto.randomUUID();
-      const ticketNumber = `${eventInfo.id}-${paymentId}-${i.toString().padStart(3, '0')}`;
+      const ticketNumber = `${eventInfo.id || 'EVENT'}-${paymentId}-${i.toString().padStart(3, '0')}`;
       
       // Create QR code data with validation info
       const qrData = {
         ticketId,
         ticketNumber,
-        eventId: eventInfo.id,
+        eventId: eventInfo.id || 'manual-event',
         eventTitle: eventInfo.title,
         eventDate: eventInfo.date,
         eventLocation: eventInfo.location,
         customerName: customerInfo.name,
         customerEmail: customerInfo.email,
-        paymentId,
-        externalReference,
+        paymentId: paymentId.toString(),
+        externalReference: externalReference || `manual-${paymentId}`,
         ticketIndex: i,
         totalTickets: ticketQuantity,
         generatedAt: new Date().toISOString(),
@@ -84,20 +86,20 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    console.log(`Generated ${tickets.length} tickets for payment ${paymentId}`);
+    console.log(`✅ Manually generated ${tickets.length} tickets for payment ${paymentId}`);
 
     return NextResponse.json({
       success: true,
       tickets,
-      totalTickets: tickets.length
+      totalTickets: tickets.length,
+      message: `Successfully generated ${tickets.length} tickets`
     }, { headers: corsHeaders });
 
   } catch (error) {
-    console.error('Error generating tickets:', error);
+    console.error('Error manually generating tickets:', error);
     return NextResponse.json(
-      { error: 'Erro ao gerar ingressos' },
+      { error: 'Erro ao gerar ingressos manualmente', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500, headers: corsHeaders }
     );
   }
 }
-

@@ -171,24 +171,19 @@ const MercadoPagoPayment: React.FC<MercadoPagoPaymentProps> = ({
           </div>
           
           {preferenceId && (
-            <div className="text-center">
-              <p className="text-sm text-gray-600 mb-4">
-                Clique no botão abaixo para ser redirecionado ao Mercado Pago
-              </p>
-              <a
-                href={`https://www.mercadopago.com.br/checkout/v1/redirect?pref_id=${preferenceId}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-block w-full py-3 px-4 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold rounded-lg transition-all duration-200 text-center"
-                onClick={() => {
-                  // We'll simulate success for now since we can't track the actual payment completion
-                  setTimeout(() => {
-                    onSuccess('mp_payment_' + Date.now());
-                  }, 3000);
+            <div className="mercadopago-wallet-container">
+              <Wallet 
+                initialization={{ 
+                  preferenceId: preferenceId
                 }}
-              >
-                Pagar com Mercado Pago
-              </a>
+                onReady={() => {
+                  console.log('MercadoPago Wallet ready');
+                }}
+                onError={(error: any) => {
+                  console.error('MercadoPago Wallet error:', error);
+                  handlePaymentError(error);
+                }}
+              />
             </div>
           )}
           

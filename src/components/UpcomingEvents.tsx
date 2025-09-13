@@ -263,13 +263,13 @@ const UpcomingEvents = () => {
                     className="w-full h-48 object-cover"
                   />
                   <div className="p-6 flex flex-col h-full">
-                    <h3 className="text-xl font-semibold mb-2">
+                    <h3 className="text-xl font-bold mb-2 text-gray-900">
                       {event.title}
                     </h3>
-                    <p className="text-gray-600 mb-2 flex-1">
+                    <p className="text-gray-800 mb-2 flex-1 font-medium leading-relaxed">
                       {event.description}
                     </p>
-                    <div className="flex justify-between items-end text-sm text-gray-500 mt-2">
+                    <div className="flex justify-between items-end text-sm text-gray-700 mt-2 font-semibold">
                       <span>{event.location}</span>
                     </div>
                   </div>
@@ -291,29 +291,29 @@ const UpcomingEvents = () => {
                   <h3 className="text-3xl font-extrabold text-gray-900 mb-2 leading-tight">
                     {event.title}
                   </h3>
-                  <div className="flex items-center gap-4 text-sm text-gray-500 mb-2">
+                  <div className="flex items-center gap-4 text-sm text-gray-700 mb-2 font-semibold">
                     <span className="inline-flex items-center gap-1">
                       <svg
                         className="w-4 h-4 text-yellow-500"
                         fill="currentColor"
                         viewBox="0 0 20 20"
                       >
-                        <path d="M6 2a1 1 0 00-1 1v1H5a3 3 0 00-3 3v8a3 3 0 003 3h10a3 3 0 003-3V7a3 3 0 00-3-3h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm8 5a1 1 0 011 1v8a1 1 0 01-1 1H5a1 1 0 01-1-1V8a1 1 0 011-1h10z" />
+                        <path d="M6 2a1 1 0 00-1 1v1H5a3 3 0 00-3 3v8a3 3 0 003 3h10a3 3 0 003-3V7a3 3 0 00-3-3h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1z" />
                       </svg>
                       {event.date}
                     </span>
                     <span className="inline-flex items-center gap-1">
                       <svg
-                        className="w-4 h-4 text-gray-400"
+                        className="w-4 h-4 text-yellow-500"
                         fill="currentColor"
                         viewBox="0 0 20 20"
                       >
-                        <path d="M10 2a8 8 0 100 16 8 8 0 000-16zm0 14a6 6 0 110-12 6 6 0 010 12zm0-9a3 3 0 100 6 3 3 0 000-6z" />
+                        <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
                       </svg>
                       {event.location}
                     </span>
                   </div>
-                  <p className="text-lg text-gray-700 leading-relaxed mb-4">
+                  <p className="text-lg text-gray-900 leading-relaxed mb-4 font-medium">
                     {event.description}
                   </p>
                   <div className="flex justify-end">

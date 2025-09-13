@@ -3,6 +3,17 @@ import { NextRequest, NextResponse } from 'next/server';
 // Use the REST API approach instead of SDK to avoid import issues
 const MERCADOPAGO_BASE_URL = 'https://api.mercadopago.com';
 
+// CORS headers
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+};
+
+export async function OPTIONS() {
+  return new Response(null, { status: 200, headers: corsHeaders });
+}
+
 // Helper function to get base URL based on environment
 function getBaseUrl(): string {
   // If NEXT_PUBLIC_BASE_URL is set, use it (for production)
@@ -27,7 +38,7 @@ export async function POST(request: NextRequest) {
     if (!process.env.MERCADOPAGO_ACCESS_TOKEN) {
       return NextResponse.json(
         { error: 'MercadoPago access token not configured' },
-        { status: 500 }
+        { status: 500, headers: corsHeaders }
       );
     }
 
@@ -91,7 +102,7 @@ export async function POST(request: NextRequest) {
       console.error('MercadoPago API error:', response.status, errorData);
       return NextResponse.json(
         { error: 'Failed to create payment preference', details: errorData },
-        { status: response.status }
+        { status: response.status, headers: corsHeaders }
       );
     }
 
@@ -102,12 +113,12 @@ export async function POST(request: NextRequest) {
       preferenceId: result.id,
       initPoint: result.init_point,
       sandboxInitPoint: result.sandbox_init_point,
-    });
+    }, { headers: corsHeaders });
   } catch (error) {
     console.error('Error creating MercadoPago preference:', error);
     return NextResponse.json(
       { error: 'Failed to create payment preference', details: error instanceof Error ? error.message : 'Unknown error' },
-      { status: 500 }
+      { status: 500, headers: corsHeaders }
     );
   }
 }

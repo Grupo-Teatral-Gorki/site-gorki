@@ -3,6 +3,17 @@ import crypto from 'crypto';
 
 const MERCADOPAGO_BASE_URL = 'https://api.mercadopago.com';
 
+// CORS headers
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+};
+
+export async function OPTIONS() {
+  return new Response(null, { status: 200, headers: corsHeaders });
+}
+
 // Validate webhook signature according to MercadoPago docs
 function validateSignature(xSignature: string, xRequestId: string, dataID: string, body: string): boolean {
   if (!process.env.MERCADOPAGO_WEBHOOK_SECRET) {
@@ -56,7 +67,7 @@ export async function POST(request: NextRequest) {
       parsedBody = JSON.parse(body);
     } catch (e) {
       console.error('Invalid JSON in webhook body');
-      return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
+      return NextResponse.json({ error: 'Invalid JSON' }, { status: 400, headers: corsHeaders });
     }
 
     console.log('Webhook received:', {
@@ -71,7 +82,7 @@ export async function POST(request: NextRequest) {
       const isValid = validateSignature(xSignature, xRequestId, dataID, body);
       if (!isValid) {
         console.error('Invalid webhook signature');
-        return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
+        return NextResponse.json({ error: 'Invalid signature' }, { status: 401, headers: corsHeaders });
       }
     }
 
@@ -90,7 +101,7 @@ export async function POST(request: NextRequest) {
 
         if (!response.ok) {
           console.error('Failed to fetch payment details:', response.status);
-          return NextResponse.json({ error: 'Failed to fetch payment' }, { status: 500 });
+          return NextResponse.json({ error: 'Failed to fetch payment' }, { status: 500, headers: corsHeaders });
         }
 
         const paymentInfo = await response.json();
@@ -116,37 +127,64 @@ export async function POST(request: NextRequest) {
         if (paymentInfo.status === 'approved') {
           console.log('✅ Payment approved:', paymentInfo.external_reference);
           
-          // Generate tickets
+          // Generate tickets directly (not via HTTP call to avoid CORS issues)
           try {
-            const ticketResponse = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://56ba979fa109.ngrok-free.app'}/api/tickets/generate`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                paymentId: paymentInfo.id,
-                externalReference: paymentInfo.external_reference,
-                customerInfo: {
-                  name: paymentInfo.payer?.first_name + ' ' + (paymentInfo.payer?.last_name || ''),
-                  email: paymentInfo.payer?.email,
-                  phone: paymentInfo.payer?.phone?.number
-                },
-                eventInfo: {
-                  id: paymentInfo.metadata?.event_id || 'unknown',
-                  title: paymentInfo.metadata?.event_title || 'Evento',
-                  date: paymentInfo.metadata?.event_date || 'Data não informada',
-                  location: paymentInfo.metadata?.event_location || 'Local não informado'
-                },
-                ticketQuantity: parseInt(paymentInfo.metadata?.ticket_quantity || '1')
-              }),
-            });
+            const { ticketStore } = await import('@/lib/ticketStore');
+            const { FirestoreTicketStore } = await import('@/lib/firestore');
+            const crypto = await import('crypto');
 
-            if (ticketResponse.ok) {
-              const ticketData = await ticketResponse.json();
-              console.log(`Generated ${ticketData.totalTickets} tickets for payment ${paymentInfo.id}`);
-            } else {
-              console.error('Failed to generate tickets:', await ticketResponse.text());
+            // Save payment data first
+            const store = ticketStore as InstanceType<typeof FirestoreTicketStore>;
+            const paymentData = {
+              paymentId: paymentInfo.id.toString(),
+              status: 'approved',
+              externalReference: paymentInfo.external_reference,
+              customerName: (paymentInfo.payer?.first_name || '') + ' ' + (paymentInfo.payer?.last_name || ''),
+              customerEmail: paymentInfo.payer?.email || '',
+              eventId: paymentInfo.metadata?.event_id || 'unknown',
+              eventTitle: paymentInfo.metadata?.event_title || 'Evento',
+              eventDate: paymentInfo.metadata?.event_date || 'Data não informada',
+              eventLocation: paymentInfo.metadata?.event_location || 'Local não informado',
+              ticketQuantity: parseInt(paymentInfo.metadata?.ticket_quantity || '1'),
+              totalAmount: paymentInfo.transaction_amount || 0,
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString()
+            };
+
+            await store.savePayment(paymentData);
+
+            // Generate tickets
+            const ticketQuantity = parseInt(paymentInfo.metadata?.ticket_quantity || '1');
+            const tickets = [];
+            
+            for (let i = 1; i <= ticketQuantity; i++) {
+              const ticketId = crypto.randomUUID();
+              const ticketNumber = `${paymentData.eventId}-${paymentInfo.id}-${i.toString().padStart(3, '0')}`;
+              
+              const qrData = {
+                ticketId,
+                ticketNumber,
+                eventId: paymentData.eventId,
+                eventTitle: paymentData.eventTitle,
+                eventDate: paymentData.eventDate,
+                eventLocation: paymentData.eventLocation,
+                customerName: paymentData.customerName,
+                customerEmail: paymentData.customerEmail,
+                paymentId: paymentInfo.id.toString(),
+                externalReference: paymentInfo.external_reference,
+                ticketIndex: i,
+                totalTickets: ticketQuantity,
+                generatedAt: new Date().toISOString(),
+                isValid: true,
+                isUsed: false
+              };
+
+              // Store ticket in Firestore
+              await ticketStore.set(ticketId, qrData);
+              tickets.push(qrData);
             }
+
+            console.log(`✅ Generated ${tickets.length} tickets for payment ${paymentInfo.id}`);
           } catch (error) {
             console.error('Error generating tickets:', error);
           }
@@ -158,15 +196,15 @@ export async function POST(request: NextRequest) {
 
       } catch (error) {
         console.error('Error processing payment webhook:', error);
-        return NextResponse.json({ error: 'Processing failed' }, { status: 500 });
+        return NextResponse.json({ error: 'Processing failed' }, { status: 500, headers: corsHeaders });
       }
     }
 
     // Return 200 OK as required by MercadoPago
-    return NextResponse.json({ received: true }, { status: 200 });
+    return NextResponse.json({ received: true }, { status: 200, headers: corsHeaders });
     
   } catch (error) {
     console.error('Webhook error:', error);
-    return NextResponse.json({ error: 'Webhook processing failed' }, { status: 500 });
+    return NextResponse.json({ error: 'Webhook processing failed' }, { status: 500, headers: corsHeaders });
   }
 }
