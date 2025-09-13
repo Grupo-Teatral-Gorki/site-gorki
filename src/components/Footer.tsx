@@ -1,5 +1,6 @@
 import React from "react";
 import { Instagram, MapPin } from "lucide-react";
+import Image from "next/image";
 import logobranco from "../assets/logobranco.png";
 
 const Footer = () => {
@@ -60,7 +61,7 @@ const Footer = () => {
         </div>
 
         <div className="border-t border-gray-800 mt-8 pt-8 text-center flex items-end justify-center gap-4">
-          <img src={logobranco} alt="logo" className="h-16" />
+          <Image src={logobranco} alt="logo" className="h-16" width={64} height={64} />
           <p className="text-gray-500">
             © 2024 Grupo Teatral GORKI. Todos os direitos reservados.
           </p>

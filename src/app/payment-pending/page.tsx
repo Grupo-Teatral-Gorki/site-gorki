@@ -1,10 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
-export default function PaymentPending() {
+function PaymentPendingContent() {
   const searchParams = useSearchParams();
   const [paymentData, setPaymentData] = useState<any>(null);
 
@@ -81,5 +81,13 @@ export default function PaymentPending() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function PaymentPending() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-gray-50 flex items-center justify-center">Carregando...</div>}>
+      <PaymentPendingContent />
+    </Suspense>
   );
 }
