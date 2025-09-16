@@ -28,7 +28,7 @@ function getBaseUrl(): string {
   }
   
   // Fallback for production
-  return 'https://portfolio-site-gorki.4xmk6e.easypanel.host';
+  return 'https://www.grupogorki.com.br';
 }
 
 export async function POST(request: NextRequest) {
