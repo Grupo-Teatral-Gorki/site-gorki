@@ -28,7 +28,7 @@ function getBaseUrl(): string {
   }
   
   // Fallback for production
-  return 'https://yourdomain.com';
+  return 'https://portfolio-site-gorki.4xmk6e.easypanel.host';
 }
 
 export async function POST(request: NextRequest) {
