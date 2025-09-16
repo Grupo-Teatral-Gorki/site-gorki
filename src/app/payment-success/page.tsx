@@ -64,7 +64,7 @@ function PaymentSuccessContent() {
       // Generate QR codes for each ticket
       const qrCodePromises = data.tickets.map(async (ticket: Ticket) => {
         const baseUrl = process.env.NODE_ENV === 'development' 
-          ? 'https://56ba979fa109.ngrok-free.app' 
+          ? 'http://localhost:3000' 
           : window.location.origin;
         const validationUrl = `${baseUrl}/validate/${ticket.ticketId}`;
         

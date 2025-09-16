@@ -23,8 +23,8 @@ function getBaseUrl(): string {
   
   // Check environment
   if (process.env.NODE_ENV === 'development') {
-    // For local development, use ngrok URL or localhost
-    return process.env.NEXT_PUBLIC_NGROK_URL || 'https://97bd632f7dae.ngrok-free.app';
+    // For local development, use localhost
+    return process.env.NEXT_PUBLIC_NGROK_URL || 'http://localhost:3000';
   }
   
   // Fallback for production
@@ -72,7 +72,6 @@ export async function POST(request: NextRequest) {
         failure: `${getBaseUrl()}/payment-failure`,
         pending: `${getBaseUrl()}/payment-pending`,
       },
-      auto_return: "approved",
       external_reference: `event-${eventInfo.id}-${Date.now()}`,
       metadata: {
         event_title: eventInfo.title,
