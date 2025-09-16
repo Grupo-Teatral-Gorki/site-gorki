@@ -38,6 +38,7 @@ export async function POST(request: NextRequest) {
       eventDate: eventInfo.date,
       eventLocation: eventInfo.location,
       ticketQuantity,
+      ticketType: 'inteira', // Default ticket type
       totalAmount: 0, // This should come from the payment data
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
@@ -63,6 +64,7 @@ export async function POST(request: NextRequest) {
         customerEmail: customerInfo.email,
         paymentId,
         externalReference,
+        ticketType: 'inteira', // Default ticket type
         ticketIndex: i,
         totalTickets: ticketQuantity,
         generatedAt: new Date().toISOString(),

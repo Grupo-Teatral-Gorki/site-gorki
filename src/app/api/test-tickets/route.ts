@@ -33,6 +33,7 @@ export async function GET(request: NextRequest) {
       eventDate: "2024-02-15 20:00",
       eventLocation: "Teatro Municipal de Itapevi",
       ticketQuantity: 2,
+      ticketType: "inteira",
       totalAmount: 50.00,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
@@ -58,6 +59,7 @@ export async function GET(request: NextRequest) {
         customerEmail: paymentData.customerEmail,
         paymentId: paymentId,
         externalReference: paymentData.externalReference,
+        ticketType: paymentData.ticketType,
         ticketIndex: i,
         totalTickets: 2,
         generatedAt: new Date().toISOString(),
