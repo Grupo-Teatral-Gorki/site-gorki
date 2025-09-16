@@ -16,7 +16,6 @@ const Header = () => {
     { label: "Sobre nós", href: "/aboutus" },
     { label: "Gestão de Cultura", href: "/criarte" },
     { label: "História", href: "/history" },
-    { label: "Admin", href: "/admin" },
   ];
 
   return (
