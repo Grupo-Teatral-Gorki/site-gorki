@@ -130,11 +130,9 @@ export async function POST(request: NextRequest) {
           // Generate tickets directly (not via HTTP call to avoid CORS issues)
           try {
             const { ticketStore } = await import('@/lib/ticketStore');
-            const { FirestoreTicketStore } = await import('@/lib/firestore');
-            const crypto = await import('crypto');
+            const { randomUUID } = await import('crypto');
 
             // Save payment data first
-            const store = ticketStore as InstanceType<typeof FirestoreTicketStore>;
             const paymentData = {
               paymentId: paymentInfo.id.toString(),
               status: 'approved',
@@ -151,14 +149,14 @@ export async function POST(request: NextRequest) {
               updatedAt: new Date().toISOString()
             };
 
-            await store.savePayment(paymentData);
+            await ticketStore.savePayment(paymentData);
 
             // Generate tickets
             const ticketQuantity = parseInt(paymentInfo.metadata?.ticket_quantity || '1');
             const tickets = [];
             
             for (let i = 1; i <= ticketQuantity; i++) {
-              const ticketId = crypto.randomUUID();
+              const ticketId = randomUUID();
               const ticketNumber = `${paymentData.eventId}-${paymentInfo.id}-${i.toString().padStart(3, '0')}`;
               
               const qrData = {
