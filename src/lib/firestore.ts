@@ -27,6 +27,7 @@ interface TicketData {
   externalReference: string;
   ticketIndex: number;
   totalTickets: number;
+  ticketType: string;
   generatedAt: string;
   isValid: boolean;
   isUsed: boolean;
@@ -61,6 +62,7 @@ interface PaymentData {
   eventDate: string;
   eventLocation: string;
   ticketQuantity: number;
+  ticketType: string;
   totalAmount: number;
   createdAt: string;
   updatedAt: string;
@@ -116,6 +118,7 @@ class FirestoreTicketStore {
         externalReference: data.externalReference,
         ticketIndex: data.ticketIndex,
         totalTickets: data.totalTickets,
+        ticketType: data.ticketType || 'inteira',
         generatedAt: data.generatedAt?.toDate?.()?.toISOString() || data.generatedAt,
         isValid: data.isValid,
         isUsed: data.isUsed,
@@ -154,6 +157,7 @@ class FirestoreTicketStore {
           externalReference: data.externalReference,
           ticketIndex: data.ticketIndex,
           totalTickets: data.totalTickets,
+          ticketType: data.ticketType || 'inteira',
           generatedAt: data.generatedAt?.toDate?.()?.toISOString() || data.generatedAt,
           isValid: data.isValid,
           isUsed: data.isUsed,
@@ -258,6 +262,7 @@ class FirestoreTicketStore {
         eventDate: data.eventDate,
         eventLocation: data.eventLocation,
         ticketQuantity: data.ticketQuantity,
+        ticketType: data.ticketType || 'inteira',
         totalAmount: data.totalAmount,
         createdAt: data.createdAt?.toDate?.()?.toISOString() || data.createdAt,
         updatedAt: data.updatedAt?.toDate?.()?.toISOString() || data.updatedAt

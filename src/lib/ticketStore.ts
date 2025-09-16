@@ -13,6 +13,7 @@ interface TicketData {
   externalReference: string;
   ticketIndex: number;
   totalTickets: number;
+  ticketType: string;
   generatedAt: string;
   isValid: boolean;
   isUsed: boolean;

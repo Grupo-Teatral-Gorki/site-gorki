@@ -144,6 +144,7 @@ export async function POST(request: NextRequest) {
               eventDate: paymentInfo.metadata?.event_date || 'Data não informada',
               eventLocation: paymentInfo.metadata?.event_location || 'Local não informado',
               ticketQuantity: parseInt(paymentInfo.metadata?.ticket_quantity || '1'),
+              ticketType: paymentInfo.metadata?.ticket_type || 'inteira',
               totalAmount: paymentInfo.transaction_amount || 0,
               createdAt: new Date().toISOString(),
               updatedAt: new Date().toISOString()
@@ -172,6 +173,7 @@ export async function POST(request: NextRequest) {
                 externalReference: paymentInfo.external_reference,
                 ticketIndex: i,
                 totalTickets: ticketQuantity,
+                ticketType: paymentData.ticketType,
                 generatedAt: new Date().toISOString(),
                 isValid: true,
                 isUsed: false

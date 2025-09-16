@@ -16,6 +16,8 @@ type EventItem = {
   location: string;
   image: string;
   price: string;
+  priceInteira?: string;
+  priceMeia?: string;
   id: string;
 };
 
@@ -175,12 +177,19 @@ export default function AdminPage() {
 
   // Event handlers
   const handleEventChange = (idx: number, field: keyof EventItem, value: string) => {
+    let formattedValue = value;
+    
+    // Format price fields to ensure dot decimal format when saving
+    if (field === 'priceInteira' || field === 'priceMeia') {
+      formattedValue = value.replace(',', '.');
+    }
+    
     setSiteData((prev) => ({
       ...prev,
       home: {
         ...prev.home,
         nextEvents: prev.home.nextEvents.map((e, i) =>
-          i === idx ? { ...e, [field]: value } : e
+          i === idx ? { ...e, [field]: formattedValue } : e
         ),
       },
     }));
@@ -200,6 +209,8 @@ export default function AdminPage() {
             location: "", 
             image: "", 
             price: "", 
+            priceInteira: "",
+            priceMeia: "",
             id: `event-${Date.now()}` 
           },
         ],
@@ -481,22 +492,22 @@ export default function AdminPage() {
                           </div>
                         </div>
                         
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Local
+                          </label>
+                          <input
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 bg-white"
+                            placeholder="Digite o local do evento"
+                            value={event.location}
+                            onChange={(e) => handleEventChange(idx, "location", e.target.value)}
+                          />
+                        </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
-                              Local
-                            </label>
-                            <input
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 bg-white"
-                              placeholder="Digite o local do evento"
-                              value={event.location}
-                              onChange={(e) => handleEventChange(idx, "location", e.target.value)}
-                            />
-                          </div>
-                          
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                              Preço
+                              Preço (Legado)
                             </label>
                             <input
                               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 bg-white"
@@ -504,6 +515,33 @@ export default function AdminPage() {
                               value={event.price}
                               onChange={(e) => handleEventChange(idx, "price", e.target.value)}
                             />
+                            <p className="text-xs text-gray-500 mt-1">Usado para compatibilidade</p>
+                          </div>
+                          
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              Preço Inteira
+                            </label>
+                            <input
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 bg-white"
+                              placeholder="Ex: 50.00"
+                              value={event.priceInteira || ""}
+                              onChange={(e) => handleEventChange(idx, "priceInteira", e.target.value)}
+                            />
+                            <p className="text-xs text-gray-500 mt-1">Valor em reais (sem R$)</p>
+                          </div>
+                          
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              Preço Meia
+                            </label>
+                            <input
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 bg-white"
+                              placeholder="Ex: 25.00"
+                              value={event.priceMeia || ""}
+                              onChange={(e) => handleEventChange(idx, "priceMeia", e.target.value)}
+                            />
+                            <p className="text-xs text-gray-500 mt-1">Valor em reais (sem R$)</p>
                           </div>
                         </div>
                         
