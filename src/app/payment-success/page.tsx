@@ -302,22 +302,42 @@ function PaymentSuccessContent() {
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4">
       <div className="max-w-4xl mx-auto">
-        {/* Success Header */}
+        {/* Status-aware Header */}
         <div className="bg-white rounded-lg shadow-lg p-8 mb-8 text-center">
-          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-            </svg>
-          </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Pagamento Aprovado!
-          </h1>
-          <p className="text-gray-600 mb-6">
-            Seus ingressos digitais estão prontos! Você pode baixá-los ou enviá-los por e-mail.
-          </p>
+          {tickets.length > 0 ? (
+            <>
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">Pagamento Aprovado!</h1>
+              <p className="text-gray-600 mb-6">Seus ingressos digitais estão prontos! Você pode baixá-los ou enviá-los por e-mail.</p>
+            </>
+          ) : paymentStatus === 'rejected' ? (
+            <>
+              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">Pagamento não aprovado</h1>
+              <p className="text-gray-600 mb-6">Seu pagamento não foi aprovado. Tente novamente ou use outro método.</p>
+            </>
+          ) : (
+            <>
+              <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M12 2a10 10 0 100 20 10 10 0 000-20z" />
+                </svg>
+              </div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">Pagamento em processamento</h1>
+              <p className="text-gray-600 mb-6">Estamos confirmando seu pagamento com o Mercado Pago. Isso pode levar alguns minutos, especialmente para PIX/Boleto.</p>
+            </>
+          )}
 
-          {/* Show status chip */}
-          {paymentStatus && (
+          {/* Show status chip only when tickets are not yet displayed */}
+          {paymentStatus && tickets.length === 0 && (
             <div className="mb-4">
               <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${paymentStatus === 'approved' ? 'bg-green-100 text-green-800' : paymentStatus === 'rejected' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'}`}>
                 Status: {paymentStatus}

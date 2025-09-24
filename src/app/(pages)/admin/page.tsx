@@ -307,15 +307,29 @@ export default function AdminPage() {
                 <h1 className="text-3xl font-bold text-gray-900">Painel Administrativo</h1>
                 <p className="text-gray-600 mt-2">Gerencie o conteúdo do site Gorki</p>
               </div>
-              <button
-                onClick={() => {
-                  localStorage.removeItem("admin-authenticated");
-                  setAuthenticated(false);
-                }}
-                className="px-4 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                Sair
-              </button>
+              <div className="flex items-center gap-3">
+                <a
+                  href="/admin/generate-tickets"
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  Gerar Ingressos (Suporte)
+                </a>
+                <a
+                  href="/admin/reports/attendees"
+                  className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                >
+                  Relatório de Participantes
+                </a>
+                <button
+                  onClick={() => {
+                    localStorage.removeItem("admin-authenticated");
+                    setAuthenticated(false);
+                  }}
+                  className="px-4 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  Sair
+                </button>
+              </div>
             </div>
           </div>
         </div>
