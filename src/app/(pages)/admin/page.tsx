@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import QRCode from "qrcode";
 import { useSiteData } from "@/hooks/useSiteData";
 import FileUpload from "@/components/FileUpload";
 
@@ -254,6 +255,64 @@ export default function AdminPage() {
     }
   };
 
+  // Generate sample tickets for support/testing
+  const handleGenerateSampleTickets = async () => {
+    try {
+      const res = await fetch('/api/test-tickets', { cache: 'no-store' });
+      const json = await res.json();
+      if (!res.ok) {
+        alert(`Erro ao gerar ingressos de teste: ${json?.error || res.status}`);
+        return;
+      }
+      const paymentId = json.paymentId || 'desconhecido';
+
+      // Fetch tickets for this payment
+      const tRes = await fetch(`/api/tickets/${paymentId}`, { cache: 'no-store' });
+      if (!tRes.ok) {
+        alert(`Ingressos criados, mas não foi possível carregar a lista (status ${tRes.status}).`);
+        return;
+      }
+      const tJson = await tRes.json();
+      const tickets = tJson.tickets || [];
+
+      // Generate QR codes data URLs
+      const qrCodes: Record<string, string> = {};
+      for (const t of tickets) {
+        const validationUrl = `${window.location.origin}/validate/${t.ticketId}`;
+        qrCodes[t.ticketId] = await QRCode.toDataURL(validationUrl, {
+          width: 200,
+          margin: 2,
+          color: { dark: "#000000", light: "#FFFFFF" },
+        });
+      }
+
+      // Ask server to generate a PDF with the QR codes and download automatically
+      const pdfRes = await fetch('/api/tickets/generate-pdf', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tickets, qrCodes })
+      });
+      if (!pdfRes.ok) {
+        alert('Ingressos criados, mas houve erro ao gerar o PDF.');
+        return;
+      }
+      const blob = await pdfRes.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `ingressos-teste-${paymentId}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+      alert(`Ingressos de teste criados! O PDF com os QR Codes foi baixado.\nPayment ID: ${paymentId}\nTotal: ${tickets.length}`);
+    } catch (e) {
+      console.error('Erro ao gerar ingressos de teste', e);
+      alert('Erro ao gerar ingressos de teste. Veja o console para detalhes.');
+    }
+  };
+
   if (!authenticated) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
@@ -308,6 +367,19 @@ export default function AdminPage() {
                 <p className="text-gray-600 mt-2">Gerencie o conteúdo do site Gorki</p>
               </div>
               <div className="flex items-center gap-3">
+                <button
+                  onClick={handleGenerateSampleTickets}
+                  className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                  title="Gerar ingressos de teste"
+                >
+                  Gerar Ingressos de Teste
+                </button>
+                <a
+                  href="/admin/payments"
+                  className="px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-black transition-colors"
+                >
+                  Pagamentos
+                </a>
                 <a
                   href="/admin/generate-tickets"
                   className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"

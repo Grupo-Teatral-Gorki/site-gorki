@@ -217,51 +217,135 @@ function PaymentSuccessContent() {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    canvas.width = 600;
-    canvas.height = 800;
+    // Branded ticket dimensions (landscape)
+    canvas.width = 1000;
+    canvas.height = 360; // slightly less height
+
+    // Colors
+    const bgDark = '#0b0b0b';
+    const leftGradStart = '#1f1140';
+    const leftGradMid = '#1a1035';
+    const leftGradEnd = '#120a26';
+    const yellow = '#f59e0b';
+    const textLight = '#f8fafc';
 
     // Background
-    ctx.fillStyle = '#ffffff';
+    ctx.fillStyle = bgDark;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Header
-    ctx.fillStyle = '#1f2937';
-    ctx.fillRect(0, 0, canvas.width, 100);
+    // Left panel gradient
+    const leftWidth = Math.floor(canvas.width * 0.68);
+    const grad = ctx.createLinearGradient(0, 0, leftWidth, canvas.height);
+    grad.addColorStop(0, leftGradStart);
+    grad.addColorStop(0.5, leftGradMid);
+    grad.addColorStop(1, leftGradEnd);
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, leftWidth, canvas.height);
 
-    // Title
-    ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 24px Arial';
-    ctx.textAlign = 'center';
-    ctx.fillText('INGRESSO DIGITAL', canvas.width / 2, 40);
-    ctx.fillText(ticket.eventTitle, canvas.width / 2, 75);
+    // Perforation strip
+    const perfX = leftWidth + 8;
+    ctx.fillStyle = '#ffffff22';
+    for (let y = 10; y < canvas.height - 10; y += 16) {
+      ctx.fillRect(perfX, y, 2, 8);
+    }
 
-    // Event details
-    ctx.fillStyle = '#000000';
-    ctx.font = '18px Arial';
-    ctx.textAlign = 'left';
-    ctx.fillText(`Data: ${ticket.eventDate}`, 50, 150);
-    ctx.fillText(`Local: ${ticket.eventLocation}`, 50, 180);
-    ctx.fillText(`Portador: ${ticket.customerName}`, 50, 210);
-    ctx.fillText(`Ingresso: ${ticket.ticketNumber}`, 50, 240);
+    // Right stub background
+    ctx.fillStyle = '#111827';
+    ctx.fillRect(perfX + 10, 0, canvas.width - (perfX + 10), canvas.height);
 
-    // QR Code
-    const qrCodeImg = new Image();
-    qrCodeImg.onload = () => {
-      ctx.drawImage(qrCodeImg, (canvas.width - 200) / 2, 300, 200, 200);
+    // Brand logo (white) at top-left
+    const logo = new Image();
+    logo.src = '/logo-mark-white.png';
+    logo.onload = () => {
+      ctx.drawImage(logo, 24, 22, 90, 28);
+    };
 
-      // Instructions
-      ctx.font = '14px Arial';
+    // Headline and title
+    ctx.fillStyle = '#fef3c7';
+    ctx.font = '700 22px Arial';
+    ctx.fillText('INGRESSO', 24, 84);
+
+    ctx.fillStyle = textLight;
+    ctx.font = '800 32px Arial';
+    wrapText(ctx, ticket.eventTitle, 24, 124, leftWidth - 48, 34);
+
+    // Meta grid
+    ctx.font = '600 14px Arial';
+    ctx.fillStyle = '#d1d5db';
+    ctx.fillText('Data', 24, 170);
+    ctx.fillText('Local', 24 + 300, 170);
+    ctx.fillText('Portador', 24, 230);
+
+    ctx.fillStyle = textLight;
+    ctx.font = '700 18px Arial';
+    ctx.fillText(ticket.eventDate, 24, 192);
+    ctx.fillText(ticket.eventLocation, 24 + 300, 192);
+    wrapText(ctx, ticket.customerName, 24, 252, leftWidth - 48, 22);
+
+    // Chips
+    drawChip(ctx, `#${ticket.ticketNumber}`, 24, 300, yellow);
+    drawChip(ctx, 'Válido 1x', 140, 300, yellow);
+
+    // QR on right stub (bigger and centered)
+    const qrImg = new Image();
+    qrImg.onload = () => {
+      const qrSize = 240;
+      const qrX = perfX + 10 + ((canvas.width - (perfX + 10)) - qrSize) / 2;
+      const qrY = 80;
+
+      // QR container
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(qrX - 8, qrY - 8, qrSize + 16, qrSize + 16);
+      ctx.drawImage(qrImg, qrX, qrY, qrSize, qrSize);
+
+      // Stub captions (centered, no 'VALIDAÇÃO')
+      ctx.fillStyle = yellow;
+      ctx.font = '800 18px Arial';
       ctx.textAlign = 'center';
-      ctx.fillText('Apresente este QR Code na entrada do evento', canvas.width / 2, 550);
-      ctx.fillText('Válido apenas uma vez', canvas.width / 2, 570);
+      ctx.fillText(String(ticket.ticketNumber), qrX + qrSize / 2, qrY + qrSize + 46);
+
+      // Brand mark under QR
+      ctx.fillStyle = '#e5e7eb';
+      ctx.font = 'bold 14px Arial';
+      ctx.fillText('GORKI', qrX + qrSize / 2, qrY + qrSize + 68);
 
       // Download
       const link = document.createElement('a');
       link.download = `ingresso-${ticket.ticketNumber}.png`;
-      link.href = canvas.toDataURL();
+      link.href = canvas.toDataURL('image/png');
       link.click();
     };
-    qrCodeImg.src = qrCodes[ticket.ticketId];
+    qrImg.src = qrCodes[ticket.ticketId];
+
+    function drawChip(c: CanvasRenderingContext2D, text: string, x: number, y: number, color: string) {
+      c.font = '700 14px Arial';
+      const w = c.measureText(text).width + 24;
+      c.fillStyle = '#111827';
+      c.fillRect(x, y - 18, w, 28);
+      c.strokeStyle = color;
+      c.lineWidth = 2;
+      c.strokeRect(x, y - 18, w, 28);
+      c.fillStyle = color;
+      c.fillText(text, x + 12, y);
+    }
+
+    function wrapText(c: CanvasRenderingContext2D, text: string, x: number, y: number, maxWidth: number, lineHeight: number) {
+      const words = text.split(' ');
+      let line = '';
+      for (let n = 0; n < words.length; n++) {
+        const testLine = line + words[n] + ' ';
+        const metrics = c.measureText(testLine);
+        const testWidth = metrics.width;
+        if (testWidth > maxWidth && n > 0) {
+          c.fillText(line, x, y);
+          line = words[n] + ' ';
+          y += lineHeight;
+        } else {
+          line = testLine;
+        }
+      }
+      c.fillText(line.trim(), x, y);
+    }
   };
 
   if (loading) {

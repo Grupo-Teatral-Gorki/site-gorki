@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
       customerName: "João Silva",
       customerEmail: "joao@example.com",
       eventId: "evento-teste-1",
-      eventTitle: "Espetáculo de Teatro",
+      eventTitle: "Desventuras de Maria",
       eventDate: "2024-02-15 20:00",
       eventLocation: "Teatro Municipal de Itapevi",
       ticketQuantity: 2,
