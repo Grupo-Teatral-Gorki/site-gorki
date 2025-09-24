@@ -70,10 +70,11 @@ export async function POST(request: NextRequest) {
       back_urls: {
         success: `${getBaseUrl()}/payment-success`,
         failure: `${getBaseUrl()}/payment-failure`,
-        pending: `${getBaseUrl()}/payment-pending`,
+        pending: `${getBaseUrl()}/payment-success`,
       },
       external_reference: `event-${eventInfo.id}-${Date.now()}`,
       metadata: {
+        event_id: eventInfo.id,
         event_title: eventInfo.title,
         event_date: eventInfo.date,
         event_location: eventInfo.location,

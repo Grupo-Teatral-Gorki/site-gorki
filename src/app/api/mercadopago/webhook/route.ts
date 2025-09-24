@@ -145,8 +145,9 @@ export async function POST(request: NextRequest) {
               paymentId: paymentInfo.id.toString(),
               status: 'approved',
               externalReference: paymentInfo.external_reference,
-              customerName: (paymentInfo.payer?.first_name || '') + ' ' + (paymentInfo.payer?.last_name || ''),
-              customerEmail: paymentInfo.payer?.email || '',
+              // Prefer form values we sent in metadata to avoid masked payer names/emails
+              customerName: paymentInfo.metadata?.customer_name || ((paymentInfo.payer?.first_name || '') + ' ' + (paymentInfo.payer?.last_name || '')),
+              customerEmail: paymentInfo.metadata?.customer_email || paymentInfo.payer?.email || '',
               eventId: paymentInfo.metadata?.event_id || 'unknown',
               eventTitle: paymentInfo.metadata?.event_title || 'Evento',
               eventDate: paymentInfo.metadata?.event_date || 'Data não informada',

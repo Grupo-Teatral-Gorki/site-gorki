@@ -25,6 +25,7 @@ function PaymentSuccessContent() {
   const [emailAddress, setEmailAddress] = useState('');
   const [sendingEmail, setSendingEmail] = useState(false);
   const [generatingPDF, setGeneratingPDF] = useState(false);
+  const [paymentStatus, setPaymentStatus] = useState<string>('');
 
   useEffect(() => {
     // Extract payment information from URL parameters
@@ -37,6 +38,7 @@ function PaymentSuccessContent() {
       paymentType: searchParams.get('payment_type'),
     };
     setPaymentData(data);
+    if (data.status) setPaymentStatus(data.status);
     
     // Automatically fetch tickets when payment data is available
     if (data.paymentId) {
@@ -49,11 +51,10 @@ function PaymentSuccessContent() {
       const response = await fetch(`/api/tickets/${paymentId}`);
       
       if (!response.ok) {
-        if (response.status === 404) {
-          setError('Ingressos não encontrados para este pagamento');
-        } else {
+        if (response.status !== 404) {
           setError('Erro ao carregar ingressos');
         }
+        // For 404 while status is pending/in_process, do not show error; keep UI in processing mode
         setLoading(false);
         return;
       }
@@ -93,6 +94,53 @@ function PaymentSuccessContent() {
       setLoading(false);
     }
   };
+
+  // Poll Mercado Pago status and trigger server-side processing when pending
+  useEffect(() => {
+    let interval: any;
+    const paymentId = paymentData?.paymentId;
+    if (!paymentId) return;
+
+    // Start polling when there are no tickets yet
+    const startPolling = () => {
+      let attempts = 0;
+      const maxAttempts = 60; // ~5 minutes if 5s interval
+      interval = setInterval(async () => {
+        attempts++;
+        try {
+          // Ask server to fetch latest status and generate tickets if approved
+          const res = await fetch(`/api/mercadopago/process-payment?paymentId=${paymentId}`, { cache: 'no-store' });
+          const json = await res.json();
+          if (json?.status) setPaymentStatus(json.status);
+
+          // If approved and tickets may exist, try to fetch them
+          if (json.status === 'approved') {
+            await fetchTickets(paymentId);
+            // Stop polling when tickets are fetched successfully
+            clearInterval(interval);
+          }
+          // If rejected, stop polling and show error UI
+          if (json.status === 'rejected') {
+            clearInterval(interval);
+            setError('Pagamento rejeitado. Tente novamente.');
+          }
+        } catch (e) {
+          console.error('Polling error:', e);
+        }
+
+        if (attempts >= maxAttempts) {
+          clearInterval(interval);
+        }
+      }, 5000);
+    };
+
+    // Start polling if we don't yet have tickets
+    if (tickets.length === 0) {
+      startPolling();
+    }
+
+    return () => interval && clearInterval(interval);
+  }, [paymentData?.paymentId, tickets.length]);
 
 
   const sendTicketsByEmail = async () => {
@@ -268,6 +316,15 @@ function PaymentSuccessContent() {
             Seus ingressos digitais estão prontos! Você pode baixá-los ou enviá-los por e-mail.
           </p>
 
+          {/* Show status chip */}
+          {paymentStatus && (
+            <div className="mb-4">
+              <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${paymentStatus === 'approved' ? 'bg-green-100 text-green-800' : paymentStatus === 'rejected' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'}`}>
+                Status: {paymentStatus}
+              </span>
+            </div>
+          )}
+
           {paymentData && (
             <div className="bg-gray-50 rounded-lg p-4 mb-6">
               <h3 className="font-semibold text-gray-900 mb-2">Detalhes do Pagamento</h3>
@@ -275,6 +332,31 @@ function PaymentSuccessContent() {
                 {paymentData.paymentId && (
                   <p><span className="font-medium">ID:</span> {paymentData.paymentId}</p>
                 )}
+              </div>
+            </div>
+          )}
+
+          {/* Processing state when tickets are not yet available */}
+          {tickets.length === 0 && (!error) && (
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 mb-6 text-left">
+              <div className="flex items-start gap-3">
+                <div className="mt-1">
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-yellow-600"></div>
+                </div>
+                <div>
+                  <h3 className="font-semibold text-yellow-900 mb-1">Processando seus ingressos…</h3>
+                  <p className="text-sm text-yellow-800">Recebemos seu pagamento e estamos confirmando com o Mercado Pago. Para PIX/Boleto, a confirmação pode levar alguns minutos. Seus ingressos aparecerão automaticamente aqui quando estiverem prontos.</p>
+                  {paymentData?.paymentId && (
+                    <div className="mt-3">
+                      <button
+                        onClick={() => fetchTickets(paymentData.paymentId)}
+                        className="inline-flex items-center gap-2 px-4 py-2 rounded bg-yellow-600 text-white hover:bg-yellow-700 text-sm"
+                      >
+                        Atualizar agora
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           )}
