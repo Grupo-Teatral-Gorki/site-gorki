@@ -94,8 +94,7 @@ const MercadoPagoPayment: React.FC<MercadoPagoPaymentProps> = ({
         <div className="bg-gray-50 rounded-lg p-4 mb-4">
           <p className="text-sm text-gray-600">Evento: <span className="font-medium">{eventInfo.title}</span></p>
           <p className="text-sm text-gray-600">Data: <span className="font-medium">{eventInfo.date}</span></p>
-          <p className="text-sm text-gray-600">Quantidade: <span className="font-medium">{ticketQuantity} ingresso(s)</span></p>
-          <p className="text-sm text-gray-600">Tipo: <span className="font-medium">{ticketType === 'inteira' ? 'Inteira' : 'Meia'}</span></p>
+          <p className="text-sm text-gray-600">Quantidade: <span className="font-medium">{ticketQuantity} ingresso(s)</span></p>          
           <p className="text-lg font-bold text-gray-900 mt-2">
             Total: R$ {amount.toFixed(2).replace('.', ',')}
           </p>

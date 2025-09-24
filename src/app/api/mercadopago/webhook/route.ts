@@ -58,23 +58,26 @@ export async function POST(request: NextRequest) {
     const url = new URL(request.url);
     const dataID = url.searchParams.get('data.id');
     const type = url.searchParams.get('type');
+    const topic = url.searchParams.get('topic');
     
     // Get body
     const body = await request.text();
-    let parsedBody;
-    
+    let parsedBody: any = {};
+    // MercadoPago often sends empty body for notifications; do not fail if body is empty or not JSON
     try {
-      parsedBody = JSON.parse(body);
-    } catch (e) {
-      console.error('Invalid JSON in webhook body');
-      return NextResponse.json({ error: 'Invalid JSON' }, { status: 400, headers: corsHeaders });
+      parsedBody = body ? JSON.parse(body) : {};
+    } catch (_e) {
+      // Keep parsedBody as empty object; continue processing using query params
+      parsedBody = {};
     }
 
     console.log('Webhook received:', {
       type,
       dataID,
+      topic,
       action: parsedBody.action,
-      live_mode: parsedBody.live_mode
+      live_mode: parsedBody.live_mode,
+      hasBody: !!body
     });
 
     // Validate signature for security
@@ -87,8 +90,13 @@ export async function POST(request: NextRequest) {
     }
 
     // Process payment notifications
-    if (type === 'payment' && parsedBody.action === 'payment.updated') {
-      const paymentId = parsedBody.data.id;
+    // Accept when either: type=payment with data.id, or topic=payment with data.id, or body contains the id
+    const candidatePaymentId = parsedBody?.data?.id || dataID;
+    const isPaymentType = type === 'payment' || topic === 'payment';
+    const action = parsedBody?.action;
+
+    if (isPaymentType && candidatePaymentId) {
+      const paymentId = candidatePaymentId;
       
       try {
         // Fetch payment details from MercadoPago API
@@ -208,3 +216,4 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Webhook processing failed' }, { status: 500, headers: corsHeaders });
   }
 }
+
