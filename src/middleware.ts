@@ -12,8 +12,16 @@ export function middleware(request: NextRequest) {
   const isFavicon = pathname === '/favicon.ico';
   const isRobots = pathname === '/robots.txt' || pathname === '/sitemap.xml';
   const isDesventuras = pathname.startsWith('/desventuras');
+  // Allow payment-related routes (MP success/failure and ticket views/validation)
+  const isPaymentRoutes = (
+    pathname.startsWith('/payment-success') ||
+    pathname.startsWith('/payment-failure') ||
+    pathname.startsWith('/ingressos') ||
+    pathname.startsWith('/validate') ||
+    pathname.startsWith('/validar-ingresso')
+  );
 
-  if (isAdmin || isApi || isNext || isStaticAsset || isFavicon || isRobots || isDesventuras) {
+  if (isAdmin || isApi || isNext || isStaticAsset || isFavicon || isRobots || isDesventuras || isPaymentRoutes) {
     return NextResponse.next();
   }
 
