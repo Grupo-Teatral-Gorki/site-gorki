@@ -1,0 +1,165 @@
+"use client";
+import { useState, useMemo } from "react";
+import MercadoPagoPayment from "@/components/MercadoPagoPayment";
+
+const EVENT = {
+  id: "desventuras-001",
+  title: "Desventuras em Série - Espetáculo",
+  date: "15-11-2025",
+  location: "Teatro Gorki, São Paulo",
+  image: "/images/desventuras.jpg",
+  // Preços em string no formato já usado no site
+  price: "R$ 00,00",
+  priceInteira: "00.05",
+  priceMeia: "00.02",
+};
+
+export default function DesventurasPage() {
+  const [customer, setCustomer] = useState({ name: "", email: "", phone: "" });
+  const [selection, setSelection] = useState({ inteira: 0, meia: 0 });
+  const [showPayment, setShowPayment] = useState(false);
+
+  const totalTickets = useMemo(() => selection.inteira + selection.meia, [selection]);
+
+  const amount = useMemo(() => {
+    const inteira = parseFloat(EVENT.priceInteira || EVENT.price.replace("R$ ", "").replace(",", "."));
+    const meia = EVENT.priceMeia ? parseFloat(EVENT.priceMeia) : inteira * 0.5;
+    return inteira * selection.inteira + meia * selection.meia;
+  }, [selection]);
+
+  const handleChange = (field: "name" | "email" | "phone", value: string) => {
+    setCustomer((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const updateQty = (type: "inteira" | "meia", inc: boolean) => {
+    setSelection((prev) => {
+      const next = { ...prev } as typeof prev;
+      next[type] = Math.max(0, next[type] + (inc ? 1 : -1));
+      return next;
+    });
+  };
+
+  const startPayment = () => {
+    if (!customer.name || !customer.email) {
+      alert("Por favor, preencha nome e e-mail.");
+      return;
+    }
+    if (totalTickets <= 0) {
+      alert("Selecione pelo menos um ingresso.");
+      return;
+    }
+    setShowPayment(true);
+  };
+
+  const handleSuccess = (paymentId: string) => {
+    // Redireciona para a página de sucesso existente
+    window.location.href = `/payment-success?payment_id=${paymentId}`;
+  };
+
+  return (
+    <div className="w-full">
+      <div className="bg-white rounded-2xl shadow-md p-6 sm:p-8">
+        <div className="mb-6">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900">{EVENT.title}</h1>
+          <p className="text-gray-700 mt-1 font-semibold">{EVENT.date} • {EVENT.location}</p>
+        </div>
+
+        {!showPayment ? (
+          <div className="grid grid-cols-1 gap-6">
+            <div>
+              <h2 className="text-lg font-bold text-gray-900 mb-3">Selecionar ingressos</h2>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between bg-gray-50 rounded-xl p-4 border border-gray-200">
+                  <div>
+                    <p className="font-semibold text-gray-800">Inteira</p>
+                    <p className="text-sm text-gray-600">R$ {parseFloat(EVENT.priceInteira).toFixed(2).replace('.', ',')}</p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <button onClick={() => updateQty("inteira", false)} className="w-9 h-9 rounded-full bg-white border border-gray-300 hover:bg-gray-100">−</button>
+                    <div className="min-w-[40px] text-center font-bold">{selection.inteira}</div>
+                    <button onClick={() => updateQty("inteira", true)} className="w-9 h-9 rounded-full bg-yellow-100 border border-yellow-300 hover:bg-yellow-200">+</button>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between bg-gray-50 rounded-xl p-4 border border-gray-200">
+                  <div>
+                    <p className="font-semibold text-gray-800">Meia</p>
+                    <p className="text-sm text-gray-600">R$ {parseFloat(EVENT.priceMeia).toFixed(2).replace('.', ',')}</p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <button onClick={() => updateQty("meia", false)} className="w-9 h-9 rounded-full bg-white border border-gray-300 hover:bg-gray-100">−</button>
+                    <div className="min-w-[40px] text-center font-bold">{selection.meia}</div>
+                    <button onClick={() => updateQty("meia", true)} className="w-9 h-9 rounded-full bg-yellow-100 border border-yellow-300 hover:bg-yellow-200">+</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <h2 className="text-lg font-bold text-gray-900 mb-3">Dados do comprador</h2>
+              <div className="space-y-3">
+                <input
+                  type="text"
+                  value={customer.name}
+                  onChange={(e) => handleChange("name", e.target.value)}
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-yellow-400 focus:ring-2 focus:ring-yellow-200"
+                  placeholder="Nome completo"
+                />
+                <input
+                  type="email"
+                  value={customer.email}
+                  onChange={(e) => handleChange("email", e.target.value)}
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-yellow-400 focus:ring-2 focus:ring-yellow-200"
+                  placeholder="E-mail"
+                />
+                <input
+                  type="tel"
+                  value={customer.phone}
+                  onChange={(e) => handleChange("phone", e.target.value)}
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-yellow-400 focus:ring-2 focus:ring-yellow-200"
+                  placeholder="Telefone (opcional)"
+                />
+              </div>
+            </div>
+
+            <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+              <div className="flex items-center justify-between text-gray-800">
+                <span className="font-semibold">Total</span>
+                <span className="text-xl font-extrabold">R$ {amount.toFixed(2).replace('.', ',')}</span>
+              </div>
+              <p className="text-xs text-gray-500 mt-1">
+                {totalTickets === 1 ? '1 ingresso' : `${totalTickets} ingressos`}
+              </p>
+            </div>
+
+            <button
+              onClick={startPayment}
+              className="w-full py-3 bg-yellow-500 hover:bg-yellow-600 text-black font-bold rounded-lg transition-colors disabled:opacity-50"
+              disabled={amount <= 0 || !customer.name || !customer.email}
+            >
+              Continuar para pagamento
+            </button>
+          </div>
+        ) : (
+          <MercadoPagoPayment
+            amount={amount}
+            customerInfo={customer}
+            eventInfo={{
+              title: EVENT.title,
+              date: EVENT.date,
+              location: EVENT.location,
+              price: EVENT.price,
+              id: EVENT.id,
+            }}
+            ticketQuantity={totalTickets}
+            ticketType={selection.inteira > 0 ? "inteira" : "meia"}
+            onSuccess={handleSuccess}
+            onError={(msg) => alert(msg)}
+            onCancel={() => setShowPayment(false)}
+          />
+        )}
+      </div>
+
+      {/* Nenhum link para outras páginas */}
+    </div>
+  );
+}

@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { SiteDataProvider } from "@/context/SiteDataContext";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
+import AppChrome from "@/components/AppChrome";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,12 +30,10 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <SiteDataProvider>
-          <Header />
-          <main className="pt-16">
-            {/* Adjust pt-16 to match your header height */}
+          <AppChrome>
+            {/* Adjust pt-16 handled inside AppChrome when header is visible */}
             {children}
-          </main>
-          <Footer />
+          </AppChrome>
         </SiteDataProvider>
       </body>
     </html>
