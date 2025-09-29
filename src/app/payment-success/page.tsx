@@ -13,6 +13,7 @@ interface Ticket {
   eventTitle: string;
   eventDate: string;
   eventLocation: string;
+  ticketType?: string;
 }
 
 function PaymentSuccessContent() {
@@ -285,6 +286,7 @@ function PaymentSuccessContent() {
     // Chips
     drawChip(ctx, `#${ticket.ticketNumber}`, 24, 300, yellow);
     drawChip(ctx, 'Válido 1x', 140, 300, yellow);
+    drawChip(ctx, (ticket.ticketType === 'meia' ? 'Meia' : 'Inteira'), 240, 300, yellow);
 
     // QR on right stub (bigger and centered)
     const qrImg = new Image();

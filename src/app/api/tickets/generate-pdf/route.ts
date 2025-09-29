@@ -63,6 +63,7 @@ export async function POST(request: NextRequest) {
               <div class="chips">
                 <span class="chip">#${String(ticketNumber).padStart(3, '0')}</span>
                 <span class="chip">Válido 1x</span>
+                <span class="chip">${(ticket.ticketType === 'meia') ? 'Meia' : 'Inteira'}</span>
               </div>         
               <div class="qr-wrap bottom">
                 <img src="${qrCodeData}" class="qr big" alt="QR" />

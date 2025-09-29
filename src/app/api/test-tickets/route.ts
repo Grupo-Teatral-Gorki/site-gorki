@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
   try {
     console.log('🧪 Starting test ticket generation...');
     
-    const paymentId = "125499217237";
+    const paymentId = `TEST-${Date.now()}`;
     const store = ticketStore as FirestoreTicketStore;
 
     // Save test payment data
@@ -32,9 +32,9 @@ export async function GET(request: NextRequest) {
       eventTitle: "Desventuras de Maria",
       eventDate: "2024-02-15 20:00",
       eventLocation: "Teatro Municipal de Itapevi",
-      ticketQuantity: 2,
+      ticketQuantity: 10,
       ticketType: "inteira",
-      totalAmount: 50.00,
+      totalAmount: 500.00,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
@@ -42,11 +42,12 @@ export async function GET(request: NextRequest) {
     console.log('💾 Saving payment data...');
     await store.savePayment(paymentData);
 
-    // Generate 2 test tickets
-    const tickets = [];
-    for (let i = 1; i <= 2; i++) {
+    // Generate 10 test tickets (5 inteira, 5 meia)
+    const tickets = [] as any[];
+    for (let i = 1; i <= 10; i++) {
       const ticketId = crypto.randomUUID();
       const ticketNumber = `TEATRO-${paymentId}-${i.toString().padStart(3, '0')}`;
+      const type = i <= 5 ? 'inteira' : 'meia';
       
       const ticketData = {
         ticketId,
@@ -59,9 +60,9 @@ export async function GET(request: NextRequest) {
         customerEmail: paymentData.customerEmail,
         paymentId: paymentId,
         externalReference: paymentData.externalReference,
-        ticketType: paymentData.ticketType,
+        ticketType: type,
         ticketIndex: i,
-        totalTickets: 2,
+        totalTickets: 10,
         generatedAt: new Date().toISOString(),
         isValid: true,
         isUsed: false
@@ -76,7 +77,8 @@ export async function GET(request: NextRequest) {
         customerName: ticketData.customerName,
         eventTitle: ticketData.eventTitle,
         eventDate: ticketData.eventDate,
-        eventLocation: ticketData.eventLocation
+        eventLocation: ticketData.eventLocation,
+        ticketType: type
       });
     }
 

@@ -27,7 +27,7 @@ export async function GET(
     }
 
     console.log(`Looking for tickets with payment ID: ${paymentId}`);
-    console.log(`Total tickets in store: ${ticketStore.size}`);
+    try { console.log(`Total tickets in store: ${await ticketStore.size()}`); } catch {}
 
     // Find tickets for this payment ID using the new store method
     const ticketsData = await ticketStore.getByPaymentId(paymentId);
@@ -38,7 +38,8 @@ export async function GET(
       customerName: ticketData.customerName,
       eventTitle: ticketData.eventTitle,
       eventDate: ticketData.eventDate,
-      eventLocation: ticketData.eventLocation
+      eventLocation: ticketData.eventLocation,
+      ticketType: ticketData.ticketType || 'inteira'
     }));
 
     // Debug logging

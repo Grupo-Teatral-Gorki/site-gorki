@@ -13,6 +13,7 @@ interface Ticket {
   eventTitle: string;
   eventDate: string;
   eventLocation: string;
+  ticketType?: string;
 }
 
 export default function TicketsPage() {
@@ -203,9 +204,12 @@ export default function TicketsPage() {
                       alt={`QR Code para ${ticket.ticketNumber}`}
                       className="mx-auto mb-2"
                     />
-                    <p className="text-xs text-gray-500">
-                      Apresente este QR Code na entrada
-                    </p>
+                    <div className="flex items-center justify-center gap-2">
+                      <span className="inline-block text-[11px] px-2 py-1 rounded-full bg-gray-100 border border-gray-300 text-gray-700 font-semibold">
+                        {ticket.ticketType === 'meia' ? 'Meia' : 'Inteira'}
+                      </span>
+                      <span className="text-xs text-gray-500">Apresente este QR Code na entrada</span>
+                    </div>
                   </div>
                 ) : (
                   <div className="w-48 h-48 bg-gray-200 rounded-lg flex items-center justify-center mx-auto mb-4">
