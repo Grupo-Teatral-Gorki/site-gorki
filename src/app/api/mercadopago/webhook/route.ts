@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
+import { db } from '@/lib/firebase';
+import { collection, addDoc } from 'firebase/firestore';
 
 const MERCADOPAGO_BASE_URL = 'https://api.mercadopago.com';
 
@@ -160,6 +162,26 @@ export async function POST(request: NextRequest) {
             };
 
             await ticketStore.savePayment(paymentData);
+
+            // If this payment is for the Desventuras event, also record a simplified entry
+            try {
+              const eventId = paymentData.eventId || '';
+              if (eventId.startsWith('desventuras')) {
+                await addDoc(collection(db, 'desventuras'), {
+                  name: paymentData.customerName,
+                  email: paymentData.customerEmail,
+                  quantity: paymentData.ticketQuantity,
+                  paymentId: paymentData.paymentId,
+                  status: paymentData.status,
+                  eventId: paymentData.eventId,
+                  eventTitle: paymentData.eventTitle,
+                  createdAt: paymentData.createdAt,
+                });
+                console.log('📝 Saved desventuras entry for', paymentData.customerName);
+              }
+            } catch (e) {
+              console.error('Error saving desventuras entry:', e);
+            }
 
             // Generate tickets
             const ticketQuantity = parseInt(paymentInfo.metadata?.ticket_quantity || '1');
