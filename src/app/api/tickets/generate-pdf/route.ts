@@ -228,7 +228,7 @@ export async function POST(request: NextRequest) {
 
             .qr-wrap { display: flex; align-items: center; justify-content: center; }
             .qr { width: 88px; height: 88px; background: #fff; padding: 4px; border-radius: 6px; border: 1px solid #374151; }
-            .qr.big { width: 120px; height: 120px; margin-bottom: 6px; }
+            .qr.big { width: 120px; height: 120px; margin-bottom: 12px; }
             
             @media print {
               * {
