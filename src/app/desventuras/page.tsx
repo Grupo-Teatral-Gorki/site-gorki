@@ -163,6 +163,7 @@ export default function DesventurasPage() {
             }}
             ticketQuantity={totalTickets}
             ticketType={selection.inteira > 0 ? "inteira" : "meia"}
+            breakdown={{ inteira: selection.inteira, meia: selection.meia }}
             onSuccess={handleSuccess}
             onError={(msg) => alert(msg)}
             onCancel={() => setShowPayment(false)}

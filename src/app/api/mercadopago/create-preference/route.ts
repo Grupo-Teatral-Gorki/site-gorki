@@ -33,7 +33,7 @@ function getBaseUrl(): string {
 
 export async function POST(request: NextRequest) {
   try {
-    const { amount, customerInfo, eventInfo, ticketQuantity, ticketType = 'inteira' } = await request.json();
+    const { amount, customerInfo, eventInfo, ticketQuantity, ticketType = 'inteira', ticketInteiraQty, ticketMeiaQty } = await request.json();
 
     if (!process.env.MERCADOPAGO_ACCESS_TOKEN) {
       return NextResponse.json(
@@ -83,6 +83,8 @@ export async function POST(request: NextRequest) {
         customer_phone: customerInfo.phone || '',
         ticket_quantity: ticketQuantity.toString(),
         ticket_type: ticketType,
+        ticket_inteira_qty: (typeof ticketInteiraQty === 'number' ? ticketInteiraQty : (ticketType === 'inteira' ? ticketQuantity : 0)).toString(),
+        ticket_meia_qty: (typeof ticketMeiaQty === 'number' ? ticketMeiaQty : (ticketType === 'meia' ? ticketQuantity : 0)).toString(),
       },
       notification_url: `${getBaseUrl()}/api/mercadopago/webhook`,
     };

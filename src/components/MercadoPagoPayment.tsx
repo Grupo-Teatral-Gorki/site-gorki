@@ -25,6 +25,7 @@ interface MercadoPagoPaymentProps {
   };
   ticketQuantity: number;
   ticketType?: 'inteira' | 'meia';
+  breakdown?: { inteira: number; meia: number };
   onSuccess: (paymentId: string) => void;
   onError: (error: string) => void;
   onCancel: () => void;
@@ -36,6 +37,7 @@ const MercadoPagoPayment: React.FC<MercadoPagoPaymentProps> = ({
   eventInfo,
   ticketQuantity,
   ticketType = 'inteira',
+  breakdown,
   onSuccess,
   onError,
   onCancel
@@ -58,6 +60,8 @@ const MercadoPagoPayment: React.FC<MercadoPagoPaymentProps> = ({
           eventInfo,
           ticketQuantity,
           ticketType,
+          ticketInteiraQty: breakdown?.inteira ?? (ticketType === 'inteira' ? ticketQuantity : 0),
+          ticketMeiaQty: breakdown?.meia ?? (ticketType === 'meia' ? ticketQuantity : 0),
         }),
       });
 

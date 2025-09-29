@@ -77,19 +77,23 @@ export async function GET(request: NextRequest) {
       }
 
       // Build payment data payload for storage
+      const meta = paymentInfo.metadata || {};
+      const metaInteira = parseInt(meta.ticket_inteira_qty || '0');
+      const metaMeia = parseInt(meta.ticket_meia_qty || '0');
+      const computedTotal = (metaInteira + metaMeia) || parseInt(meta.ticket_quantity || '1');
       const paymentData = {
         paymentId: paymentInfo.id.toString(),
         status: 'approved',
         externalReference: paymentInfo.external_reference,
         // Prefer form-submitted values from metadata to avoid masked payer data
-        customerName: paymentInfo.metadata?.customer_name || ((paymentInfo.payer?.first_name || '') + ' ' + (paymentInfo.payer?.last_name || '')),
-        customerEmail: paymentInfo.metadata?.customer_email || paymentInfo.payer?.email || '',
-        eventId: paymentInfo.metadata?.event_id || 'unknown',
-        eventTitle: paymentInfo.metadata?.event_title || 'Evento',
-        eventDate: paymentInfo.metadata?.event_date || 'Data não informada',
-        eventLocation: paymentInfo.metadata?.event_location || 'Local não informado',
-        ticketQuantity: parseInt(paymentInfo.metadata?.ticket_quantity || '1'),
-        ticketType: paymentInfo.metadata?.ticket_type || 'inteira',
+        customerName: meta.customer_name || ((paymentInfo.payer?.first_name || '') + ' ' + (paymentInfo.payer?.last_name || '')),
+        customerEmail: meta.customer_email || paymentInfo.payer?.email || '',
+        eventId: meta.event_id || 'unknown',
+        eventTitle: meta.event_title || 'Evento',
+        eventDate: meta.event_date || 'Data não informada',
+        eventLocation: meta.event_location || 'Local não informado',
+        ticketQuantity: computedTotal,
+        ticketType: meta.ticket_type || 'inteira',
         totalAmount: paymentInfo.transaction_amount || 0,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
@@ -97,7 +101,7 @@ export async function GET(request: NextRequest) {
 
       await ticketStore.savePayment(paymentData as any);
 
-      const ticketQuantity = parseInt(paymentInfo.metadata?.ticket_quantity || '1');
+      const ticketQuantity = computedTotal;
       const tickets: any[] = [];
 
       for (let i = 1; i <= ticketQuantity; i++) {
@@ -117,7 +121,7 @@ export async function GET(request: NextRequest) {
           externalReference: paymentInfo.external_reference,
           ticketIndex: i,
           totalTickets: ticketQuantity,
-          ticketType: paymentData.ticketType,
+          ticketType: (metaInteira + metaMeia) > 0 ? (i <= metaInteira ? 'inteira' : 'meia') : paymentData.ticketType,
           generatedAt: new Date().toISOString(),
           isValid: true,
           isUsed: false
