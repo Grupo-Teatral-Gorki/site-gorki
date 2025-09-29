@@ -4,14 +4,15 @@ import MercadoPagoPayment from "@/components/MercadoPagoPayment";
 
 const EVENT = {
   id: "desventuras-001",
-  title: "Desventuras em Série - Espetáculo",
-  date: "15-11-2025",
-  location: "Teatro Gorki, São Paulo",
-  image: "/images/desventuras.jpg",
+  title: "Desventuras de Maria",
+  date: "08-10-2025",
+  location: "Teatro Municipal de Ribeirão Preto",
+  image: "https://firebasestorage.googleapis.com/v0/b/itapevi-cce4e.firebasestorage.app/o/WhatsApp%20Image%202025-09-29%20at%2012.16.09.jpeg?alt=media&token=e3e45e27-05f6-4d37-85ea-53316d473a95",
   // Preços em string no formato já usado no site
   price: "R$ 00,00",
-  priceInteira: "00.05",
-  priceMeia: "00.02",
+  priceInteira: "40.00",
+  priceMeia: "20.00",
+  release: "Em meio a sonhos, memórias e fantasias, Desventuras de Maria acompanha a jornada de uma menina de 12 anos em busca de si mesma. Pressionada pelas expectativas do mundo ao seu redor, Maria embarca em mais uma aventura de escoteira com Bitu, seu amigo imaginário, que a guia por desafios e descobertas sobre o bem, o mal e tudo que há entre eles. Inspirado na obra e no legado de Maria Clara Machado, o espetáculo infantil musical explora a formação da identidade na infância. Canções originais evocam ritmos brasileiros e cantigas populares, enquanto máscaras e personagens arquetípicos ajudam a narrar uma história sobre luto, amadurecimento e autonomia emocional. Celebrando a força da imaginação e da brincadeira, Desventuras de Maria busca dar forma ao delicado processo de tornar-se quem se é.",
 };
 
 export default function DesventurasPage() {
@@ -65,7 +66,17 @@ export default function DesventurasPage() {
         </div>
 
         {!showPayment ? (
-          <div className="grid grid-cols-1 gap-6">
+          <div className="grid grid-cols-1 gap-4 sm:gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 items-center">
+              <img
+                src={EVENT.image}
+                alt={EVENT.title}
+                className="w-full max-w-xs md:max-w-full h-auto md:h-[500px] block mx-auto object-contain"
+              />
+              <p className="text-gray-700 mt-1 font-bold text-left md:text-justify leading-relaxed break-words">
+                {EVENT.release}
+              </p>
+            </div>
             <div>
               <h2 className="text-lg font-bold text-gray-900 mb-3">Selecionar ingressos</h2>
               <div className="space-y-3">

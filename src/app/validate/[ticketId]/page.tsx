@@ -161,12 +161,7 @@ export default function ValidateTicket() {
                 )}
               </div>
 
-              <button
-                onClick={resetValidation}
-                className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-blue-700 transition-colors"
-              >
-                Validar Outro Ingresso
-              </button>
+              {/* Removed: 'Validar Outro Ingresso' button as requested */}
             </div>
           )}
         </div>

@@ -11,7 +11,7 @@ export default function DesventurasLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <div className="antialiased bg-[#0a0a0a] text-black min-h-screen flex items-start justify-center p-4 sm:p-6 md:p-8">
-      <div className="w-full max-w-2xl">{children}</div>
+      <div className="w-full max-w-[1200px] ">{children}</div>
     </div>
   );
 }
