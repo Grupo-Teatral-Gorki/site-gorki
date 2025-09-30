@@ -1,6 +1,7 @@
 "use client";
 import { useState, useMemo } from "react";
 import MercadoPagoPayment from "@/components/MercadoPagoPayment";
+import Image from "next/image";
 
 const EVENT = {
   id: "desventuras-001",
@@ -60,9 +61,14 @@ export default function DesventurasPage() {
   return (
     <div className="w-full">
       <div className="bg-white rounded-2xl shadow-md p-6 sm:p-8">
+        <div className="flex justify-center flex-col items-center mb-6">
+
+      <Image src={'/logo-mark-black.png'} alt={EVENT.title} width={200} height={200} />
         <div className="mb-6">
+          <p className="text-2xl font-bold text-gray-900 text-center mt-2">APRESENTA</p>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900">{EVENT.title}</h1>
           <p className="text-gray-700 mt-1 font-semibold">{EVENT.date} • {EVENT.location}</p>
+        </div>
         </div>
 
         {!showPayment ? (
