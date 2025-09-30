@@ -8,7 +8,7 @@ const EVENT = {
   title: "Desventuras de Maria",
   date: "08-10-2025",
   location: "Teatro Municipal de Ribeirão Preto",
-  image: "https://firebasestorage.googleapis.com/v0/b/itapevi-cce4e.firebasestorage.app/o/WhatsApp%20Image%202025-09-29%20at%2012.16.09.jpeg?alt=media&token=e3e45e27-05f6-4d37-85ea-53316d473a95",
+  image: "https://firebasestorage.googleapis.com/v0/b/itapevi-cce4e.firebasestorage.app/o/WhatsApp%20Image%202025-09-30%20at%2017.40.58.jpeg?alt=media&token=67add5bd-893c-49fc-86ef-287e1040f83a",
   // Preços em string no formato já usado no site
   price: "R$ 00,00",
   priceInteira: "40.00",
@@ -99,7 +99,7 @@ export default function DesventurasPage() {
                 </div>
                 <div className="flex items-center justify-between bg-gray-50 rounded-xl p-4 border border-gray-200">
                   <div>
-                    <p className="font-semibold text-gray-800">Meia</p>
+                    <p className="font-semibold text-gray-800">Meia / Antecipado</p>
                     <p className="text-sm text-gray-600">R$ {parseFloat(EVENT.priceMeia).toFixed(2).replace('.', ',')}</p>
                   </div>
                   <div className="flex items-center gap-3">
