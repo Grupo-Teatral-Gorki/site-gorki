@@ -160,6 +160,9 @@ export async function POST(request: NextRequest) {
               eventLocation: meta.event_location || 'Local não informado',
               ticketQuantity: computedTotal,
               ticketType: meta.ticket_type || 'inteira',
+              // NEW: per-type counts for admin reporting
+              ticketInteiraQty: metaInteira,
+              ticketMeiaQty: metaMeia,
               totalAmount: paymentInfo.transaction_amount || 0,
               createdAt: new Date().toISOString(),
               updatedAt: new Date().toISOString()

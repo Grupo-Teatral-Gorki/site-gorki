@@ -63,6 +63,8 @@ interface PaymentData {
   eventLocation: string;
   ticketQuantity: number;
   ticketType: string;
+  ticketInteiraQty?: number;
+  ticketMeiaQty?: number;
   totalAmount: number;
   createdAt: string;
   updatedAt: string;
@@ -263,6 +265,8 @@ class FirestoreTicketStore {
         eventLocation: data.eventLocation,
         ticketQuantity: data.ticketQuantity,
         ticketType: data.ticketType || 'inteira',
+        ticketInteiraQty: data.ticketInteiraQty,
+        ticketMeiaQty: data.ticketMeiaQty,
         totalAmount: data.totalAmount,
         createdAt: data.createdAt?.toDate?.()?.toISOString() || data.createdAt,
         updatedAt: data.updatedAt?.toDate?.()?.toISOString() || data.updatedAt
