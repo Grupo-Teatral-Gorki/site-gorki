@@ -149,9 +149,8 @@ export default function DesventurasPage() {
             </div>
 
             <button
-              onClick={startPayment}
-              className="w-full py-3 bg-yellow-500 hover:bg-yellow-600 text-black font-bold rounded-lg transition-colors disabled:opacity-50"
-              disabled={amount <= 0 || !customer.name || !customer.email}
+              onClick={() => alert("Vendas encerradas")}
+              className="w-full py-3 bg-yellow-500 hover:bg-yellow-600 text-black font-bold rounded-lg transition-colors disabled:opacity-50"              
             >
               Continuar para pagamento
             </button>
