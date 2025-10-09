@@ -3,47 +3,38 @@ import puppeteer from 'puppeteer';
 import fs from 'fs/promises';
 import path from 'path';
 
-export async function POST(request: NextRequest) {
-  try {
-    const { tickets, qrCodes } = await request.json();
-
-    if (!tickets || !qrCodes) {
-      return NextResponse.json(
-        { error: 'Missing required fields' },
-        { status: 400 }
-      );
+// Helper to render tickets HTML and return a PDF Buffer
+export async function generateTicketsPdf(tickets: any[], qrCodes: Record<string, string>): Promise<Uint8Array> {
+  // Try to load brand logos from public folder and embed as data URLs
+  async function loadDataUrl(filename: string): Promise<string | null> {
+    try {
+      const filePath = path.join(process.cwd(), 'public', filename);
+      const buf = await fs.readFile(filePath);
+      const ext = path.extname(filename).replace('.', '') || 'png';
+      return `data:image/${ext};base64,${buf.toString('base64')}`;
+    } catch {
+      return null;
     }
+  }
 
-    // Try to load brand logos from public folder and embed as data URLs
-    async function loadDataUrl(filename: string): Promise<string | null> {
-      try {
-        const filePath = path.join(process.cwd(), 'public', filename);
-        const buf = await fs.readFile(filePath);
-        const ext = path.extname(filename).replace('.', '') || 'png';
-        return `data:image/${ext};base64,${buf.toString('base64')}`;
-      } catch {
-        return null;
-      }
-    }
+  const logoWhiteDataUrl = await loadDataUrl('logo-mark-white.png');
 
-    const logoWhiteDataUrl = await loadDataUrl('logo-mark-white.png');
-
-    // Create tickets in groups of 6 per page (portrait page, 2 columns x 3 rows)
-    let ticketsHtml = '';
-    for (let i = 0; i < tickets.length; i += 6) {
-      const pageTickets = tickets.slice(i, i + 6);
-      const isLastPage = i + 6 >= tickets.length;
-      
-      ticketsHtml += `
+  // Create tickets in groups of 6 per page (portrait page, 2 columns x 3 rows)
+  let ticketsHtml = '';
+  for (let i = 0; i < tickets.length; i += 6) {
+    const pageTickets = tickets.slice(i, i + 6);
+    const isLastPage = i + 6 >= tickets.length;
+    
+    ticketsHtml += `
         <div class="tickets-page"${!isLastPage ? ' style="page-break-after: always;"' : ''}>
           <div class="page-grid">
       `;
+    
+    pageTickets.forEach((ticket: any, pageIndex: number) => {
+      const qrCodeData = qrCodes[ticket.ticketId];
+      const ticketNumber = i + pageIndex + 1;
       
-      pageTickets.forEach((ticket: any, pageIndex: number) => {
-        const qrCodeData = qrCodes[ticket.ticketId];
-        const ticketNumber = i + pageIndex + 1;
-        
-        ticketsHtml += `
+      ticketsHtml += `
           <div class="ticket">
             <div class="ticket-single">
               <div class="top-row">
@@ -72,15 +63,15 @@ export async function POST(request: NextRequest) {
             </div>
           </div>
         `;
-      });
-      
-      ticketsHtml += `
+    });
+    
+    ticketsHtml += `
           </div>
         </div>
       `;
-    }
+  }
 
-    const htmlContent = `
+  const htmlContent = `
       <!DOCTYPE html>
       <html>
         <head>
@@ -228,7 +219,7 @@ export async function POST(request: NextRequest) {
 
             .qr-wrap { display: flex; align-items: center; justify-content: center; }
             .qr { width: 88px; height: 88px; background: #fff; padding: 4px; border-radius: 6px; border: 1px solid #374151; }
-            .qr.big { width: 120px; height: 120px; margin-bottom: 12px; }
+            .qr.big { width: 120px; height: 120px; margin-bottom: 30px; }
             
             @media print {
               * {
@@ -265,28 +256,42 @@ export async function POST(request: NextRequest) {
       </html>
     `;
 
-    // Generate PDF using Puppeteer
-    const browser = await puppeteer.launch({
-      headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
-    });
-    
-    const page = await browser.newPage();
-    await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
-    
-    const pdfBuffer = await page.pdf({
-      format: 'A4',
-      printBackground: true,
-      margin: {
-        top: '0mm',
-        right: '0mm',
-        bottom: '0mm',
-        left: '0mm'
-      }
-    });
-    
-    await browser.close();
-    
+  // Generate PDF using Puppeteer
+  const browser = await puppeteer.launch({
+    headless: true,
+    args: ['--no-sandbox', '--disable-setuid-sandbox']
+  });
+  
+  const page = await browser.newPage();
+  await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
+  
+  const pdfBuffer = await page.pdf({
+    format: 'A4',
+    printBackground: true,
+    margin: {
+      top: '0mm',
+      right: '0mm',
+      bottom: '0mm',
+      left: '0mm'
+    }
+  });
+  
+  await browser.close();
+  return pdfBuffer;
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    const { tickets, qrCodes } = await request.json();
+
+    if (!tickets || !qrCodes) {
+      return NextResponse.json(
+        { error: 'Missing required fields' },
+        { status: 400 }
+      );
+    }
+    const pdfBuffer = await generateTicketsPdf(tickets, qrCodes);
+
     return new NextResponse(pdfBuffer, {
       headers: {
         'Content-Type': 'application/pdf',
@@ -302,3 +307,4 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+

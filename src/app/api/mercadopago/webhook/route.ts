@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
 import { db } from '@/lib/firebase';
 import { collection, addDoc } from 'firebase/firestore';
+import nodemailer from 'nodemailer';
+import QRCode from 'qrcode';
+import { generateTicketsPdf } from '@/app/api/tickets/generate-pdf/route';
 
 const MERCADOPAGO_BASE_URL = 'https://api.mercadopago.com';
 
@@ -223,6 +226,74 @@ export async function POST(request: NextRequest) {
             }
 
             console.log(`✅ Generated ${tickets.length} tickets for payment ${paymentInfo.id}`);
+
+            // Build QR images map for PDF
+            const qrCodes: Record<string, string> = {};
+            for (const t of tickets) {
+              try {
+                const payload = JSON.stringify({
+                  ticketId: t.ticketId,
+                  ticketNumber: t.ticketNumber,
+                  eventId: t.eventId,
+                  paymentId: t.paymentId,
+                  ticketIndex: t.ticketIndex,
+                });
+                qrCodes[t.ticketId] = await QRCode.toDataURL(payload);
+              } catch (e) {
+                console.error('QR generation failed for ticket', t.ticketId, e);
+              }
+            }
+
+            // Generate PDF buffer
+            let pdfBuffer: Uint8Array | null = null;
+            try {
+              pdfBuffer = await generateTicketsPdf(tickets as any[], qrCodes);
+            } catch (e) {
+              console.error('PDF generation failed:', e);
+            }
+
+            // Email the tickets PDF if we have buffer and email
+            const recipient = paymentData.customerEmail;
+            if (pdfBuffer && recipient) {
+              try {
+                const transporter = nodemailer.createTransport({
+                  host: process.env.SMTP_HOST || 'smtp.gmail.com',
+                  port: parseInt(process.env.SMTP_PORT || '587'),
+                  secure: false,
+                  auth: {
+                    user: process.env.SMTP_USER,
+                    pass: process.env.SMTP_PASS,
+                  },
+                });
+
+                await transporter.sendMail({
+                  from: process.env.SMTP_FROM || 'noreply@gorki.com',
+                  to: recipient,
+                  subject: `Seus ingressos - ${paymentData.eventTitle}`,
+                  html: `
+                    <p>Olá ${paymentData.customerName || ''},</p>
+                    <p>Obrigado pela sua compra! Seus ingressos para <strong>${paymentData.eventTitle}</strong> estão em anexo.</p>
+                    <p>
+                      Data: ${paymentData.eventDate}<br/>
+                      Local: ${paymentData.eventLocation}
+                    </p>
+                    <p>Apresente o PDF na entrada. Cada QR Code é válido uma única vez.</p>
+                  `,
+                  attachments: [
+                    {
+                      filename: 'ingressos.pdf',
+                      content: Buffer.from(pdfBuffer),
+                      contentType: 'application/pdf',
+                    },
+                  ],
+                });
+                console.log('📧 Tickets emailed to', recipient);
+              } catch (e) {
+                console.error('Failed to send email for payment', paymentInfo.id, e);
+              }
+            } else {
+              console.warn('Skipping email: missing pdfBuffer or recipient');
+            }
           } catch (error) {
             console.error('Error generating tickets:', error);
           }
