@@ -4,7 +4,7 @@ import { db } from '@/lib/firebase';
 import { collection, addDoc } from 'firebase/firestore';
 import nodemailer from 'nodemailer';
 import QRCode from 'qrcode';
-import { generateTicketsPdf } from '@/app/api/tickets/generate-pdf/route';
+import { generateTicketsPdf } from '@/lib/pdf/generateTicketsPdf';
 
 const MERCADOPAGO_BASE_URL = 'https://api.mercadopago.com';
 
@@ -267,7 +267,7 @@ export async function POST(request: NextRequest) {
                 });
 
                 await transporter.sendMail({
-                  from: process.env.SMTP_FROM || 'noreply@gorki.com',
+                  from: process.env.SMTP_FROM || 'noreply@grupogorki.com.br',
                   to: recipient,
                   subject: `Seus ingressos - ${paymentData.eventTitle}`,
                   html: `
