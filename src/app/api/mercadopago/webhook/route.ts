@@ -31,7 +31,7 @@ function validateSignature(xSignature: string, xRequestId: string, dataID: strin
     const parts = xSignature.split(',');
     let ts = '';
     let hash = '';
-    
+
     for (const part of parts) {
       const [key, value] = part.split('=');
       if (key === 'ts') ts = value;
@@ -40,12 +40,12 @@ function validateSignature(xSignature: string, xRequestId: string, dataID: strin
 
     // Create the signed string according to MercadoPago format
     const signedString = `id:${dataID};request-id:${xRequestId};ts:${ts};`;
-    
+
     // Generate HMAC signature
     const hmac = crypto.createHmac('sha256', process.env.MERCADOPAGO_WEBHOOK_SECRET);
     hmac.update(signedString);
     const expectedSignature = hmac.digest('hex');
-    
+
     return expectedSignature === hash;
   } catch (error) {
     console.error('Signature validation error:', error);
@@ -58,13 +58,13 @@ export async function POST(request: NextRequest) {
     // Get headers for signature validation
     const xSignature = request.headers.get('x-signature');
     const xRequestId = request.headers.get('x-request-id');
-    
+
     // Get query parameters
     const url = new URL(request.url);
     const dataID = url.searchParams.get('data.id');
     const type = url.searchParams.get('type');
     const topic = url.searchParams.get('topic');
-    
+
     // Get body
     const body = await request.text();
     let parsedBody: any = {};
@@ -102,7 +102,7 @@ export async function POST(request: NextRequest) {
 
     if (isPaymentType && candidatePaymentId) {
       const paymentId = candidatePaymentId;
-      
+
       try {
         // Fetch payment details from MercadoPago API
         const response = await fetch(`${MERCADOPAGO_BASE_URL}/v1/payments/${paymentId}`, {
@@ -118,7 +118,7 @@ export async function POST(request: NextRequest) {
         }
 
         const paymentInfo = await response.json();
-        
+
         console.log('Payment details:', {
           id: paymentInfo.id,
           status: paymentInfo.status,
@@ -135,11 +135,11 @@ export async function POST(request: NextRequest) {
         // 2. Send confirmation emails
         // 3. Generate tickets for approved payments
         // 4. Handle refunds for cancelled payments
-        
+
         // Generate tickets for approved payments
         if (paymentInfo.status === 'approved') {
           console.log('✅ Payment approved:', paymentInfo.external_reference);
-          
+
           // Generate tickets directly (not via HTTP call to avoid CORS issues)
           try {
             const { ticketStore } = await import('@/lib/ticketStore');
@@ -196,11 +196,11 @@ export async function POST(request: NextRequest) {
             // Generate tickets
             const ticketQuantity = computedTotal;
             const tickets = [];
-            
+
             for (let i = 1; i <= ticketQuantity; i++) {
               const ticketId = randomUUID();
               const ticketNumber = `${paymentData.eventId}-${paymentInfo.id}-${i.toString().padStart(3, '0')}`;
-              
+
               const qrData = {
                 ticketId,
                 ticketNumber,
@@ -267,7 +267,8 @@ export async function POST(request: NextRequest) {
                 });
 
                 await transporter.sendMail({
-                  from: process.env.SMTP_FROM || 'noreply@grupogorki.com.br',
+                  from: `"Grupo Teatral Gorki" <${process.env.SMTP_USER}>`,
+                  replyTo: process.env.SMTP_FROM || 'noreply@grupoteatralgorki.com',
                   to: recipient,
                   subject: `Seus ingressos - ${paymentData.eventTitle}`,
                   html: `
@@ -311,7 +312,7 @@ export async function POST(request: NextRequest) {
 
     // Return 200 OK as required by MercadoPago
     return NextResponse.json({ received: true }, { status: 200, headers: corsHeaders });
-    
+
   } catch (error) {
     console.error('Webhook error:', error);
     return NextResponse.json({ error: 'Webhook processing failed' }, { status: 500, headers: corsHeaders });
