@@ -16,7 +16,10 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Grupo Teatral Gorki",
-  description: "",
+  description: "Grupo Teatral Gorki - Teatro, cultura e arte em Itapevi",
+  icons: {
+    icon: '/favicon.ico',
+  },
 };
 
 export default function RootLayout({
@@ -25,7 +28,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="pt-BR">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
