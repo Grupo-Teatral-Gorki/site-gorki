@@ -25,7 +25,8 @@ export default function AdminCasaFechadaPage() {
     const [loading, setLoading] = useState(true);
     const [sessionFilter, setSessionFilter] = useState<string>("");
     const [copiedId, setCopiedId] = useState<string>("");
-    const [busy, setBusy] = useState<{ refresh: boolean; csv: boolean; pdf: boolean }>({ refresh: false, csv: false, pdf: false });
+    const [busy, setBusy] = useState<{ refresh: boolean; csv: boolean; pdf: boolean; delete: boolean }>({ refresh: false, csv: false, pdf: false, delete: false });
+    const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
     const load = async () => {
         setLoading(true);
@@ -68,6 +69,60 @@ export default function AdminCasaFechadaPage() {
             alert('Falha ao gerar PDF');
         }
         setBusy((b) => ({ ...b, pdf: false }));
+    };
+
+    const deleteSelected = async () => {
+        if (selectedIds.size === 0) {
+            alert('Selecione pelo menos um pagamento para deletar');
+            return;
+        }
+
+        const confirmed = confirm(
+            `Tem certeza que deseja deletar ${selectedIds.size} pagamento(s)?\n\nEsta ação não pode ser desfeita!`
+        );
+
+        if (!confirmed) return;
+
+        setBusy((b) => ({ ...b, delete: true }));
+        try {
+            const res = await fetch('/api/admin/casa-fechada/delete', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    paymentIds: Array.from(selectedIds),
+                }),
+            });
+
+            if (!res.ok) throw new Error('Falha ao deletar');
+
+            const result = await res.json();
+            alert(`${result.deletedCount} pagamento(s) deletado(s) com sucesso!`);
+            setSelectedIds(new Set());
+            await load(); // Reload the list
+        } catch (e) {
+            console.error(e);
+            alert('Falha ao deletar pagamentos');
+        } finally {
+            setBusy((b) => ({ ...b, delete: false }));
+        }
+    };
+
+    const toggleSelectAll = () => {
+        if (selectedIds.size === filteredItems.length) {
+            setSelectedIds(new Set());
+        } else {
+            setSelectedIds(new Set(filteredItems.map(item => item.paymentId)));
+        }
+    };
+
+    const toggleSelect = (paymentId: string) => {
+        const newSelected = new Set(selectedIds);
+        if (newSelected.has(paymentId)) {
+            newSelected.delete(paymentId);
+        } else {
+            newSelected.add(paymentId);
+        }
+        setSelectedIds(newSelected);
     };
 
     useEffect(() => {
@@ -170,10 +225,20 @@ export default function AdminCasaFechadaPage() {
                         >
                             {busy.pdf ? 'Gerando PDF...' : 'Exportar PDF'}
                         </button>
+                        <button
+                            className="px-3 py-2 rounded bg-red-600 text-white cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                            onClick={deleteSelected}
+                            disabled={busy.delete || selectedIds.size === 0}
+                        >
+                            {busy.delete ? 'Deletando...' : `Deletar (${selectedIds.size})`}
+                        </button>
                     </div>
                 </div>
 
-                <p className="text-sm text-gray-600 mb-4">Mostrando apenas pagamentos aprovados (registrados pelo webhook).</p>
+                <p className="text-sm text-gray-600 mb-4">
+                    Mostrando apenas pagamentos aprovados (registrados pelo webhook).
+                    {selectedIds.size > 0 && <span className="ml-2 font-semibold text-red-600">{selectedIds.size} selecionado(s)</span>}
+                </p>
 
                 {/* Filter: Session selector */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
@@ -203,6 +268,14 @@ export default function AdminCasaFechadaPage() {
                         <table className="min-w-full text-sm whitespace-nowrap">
                             <thead className="bg-gray-50 sticky top-0 z-10">
                                 <tr className="text-left">
+                                    <th className="px-3 py-2 font-semibold text-gray-700">
+                                        <input
+                                            type="checkbox"
+                                            checked={selectedIds.size === filteredItems.length && filteredItems.length > 0}
+                                            onChange={toggleSelectAll}
+                                            className="cursor-pointer"
+                                        />
+                                    </th>
                                     <th className="px-3 py-2 font-semibold text-gray-700">ID</th>
                                     <th className="px-3 py-2 font-semibold text-gray-700">Nome</th>
                                     <th className="px-3 py-2 font-semibold text-gray-700">Email</th>
@@ -217,6 +290,14 @@ export default function AdminCasaFechadaPage() {
                             <tbody className="divide-y divide-gray-100">
                                 {filteredItems.map((i) => (
                                     <tr key={i.id} className="hover:bg-gray-50">
+                                        <td className="px-3 py-2">
+                                            <input
+                                                type="checkbox"
+                                                checked={selectedIds.has(i.paymentId)}
+                                                onChange={() => toggleSelect(i.paymentId)}
+                                                className="cursor-pointer"
+                                            />
+                                        </td>
                                         <td className="px-3 py-2 font-mono text-xs text-gray-700">
                                             <button
                                                 className="hover:underline"
