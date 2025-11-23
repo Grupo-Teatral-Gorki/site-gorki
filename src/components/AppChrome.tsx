@@ -5,7 +5,7 @@ import Footer from "./Footer";
 
 export default function AppChrome({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const hideChrome = pathname?.startsWith("/desventuras");
+  const hideChrome = pathname?.startsWith("/eventos/casa-fechada");
 
   return (
     <>

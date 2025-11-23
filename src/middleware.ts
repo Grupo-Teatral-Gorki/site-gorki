@@ -11,7 +11,7 @@ export function middleware(request: NextRequest) {
   const isStaticAsset = pathname.match(/\.(.*)$/); // files like .png, .jpg, .css, .js, etc.
   const isFavicon = pathname === '/favicon.ico';
   const isRobots = pathname === '/robots.txt' || pathname === '/sitemap.xml';
-  const isDesventuras = pathname.startsWith('/desventuras');
+  const isCasaFechada = pathname.startsWith('/eventos/casa-fechada');
   // Allow payment-related routes (MP success/failure and ticket views/validation)
   const isPaymentRoutes = (
     pathname.startsWith('/payment-success') ||
@@ -21,7 +21,7 @@ export function middleware(request: NextRequest) {
     pathname.startsWith('/validar-ingresso')
   );
 
-  if (isAdmin || isApi || isNext || isStaticAsset || isFavicon || isRobots || isDesventuras || isPaymentRoutes) {
+  if (isAdmin || isApi || isNext || isStaticAsset || isFavicon || isRobots || isCasaFechada || isPaymentRoutes) {
     return NextResponse.next();
   }
 
@@ -32,7 +32,7 @@ export function middleware(request: NextRequest) {
   }
 
   const url = request.nextUrl.clone();
-  url.pathname = '/desventuras';
+  url.pathname = '/eventos/casa-fechada';
   return NextResponse.redirect(url);
 }
 
