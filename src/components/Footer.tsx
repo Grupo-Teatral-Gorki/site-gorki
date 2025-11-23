@@ -76,7 +76,7 @@ const Footer = () => {
         <div className="border-t border-gray-800 mt-8 pt-8 text-center flex items-end justify-center gap-4">
           <Image src={logobranco} alt="logo" className="h-16" width={120} height={64} />
           <p className="text-gray-500">
-            © 2024 Grupo Teatral GORKI. Todos os direitos reservados.
+            © {new Date().getFullYear()} Grupo Teatral GORKI. Todos os direitos reservados.
           </p>
         </div>
       </div>
