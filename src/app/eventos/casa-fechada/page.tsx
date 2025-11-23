@@ -258,7 +258,10 @@ export default function DesventurasPage() {
             customerInfo={customer}
             eventInfo={{
               title: EVENT.title,
-              date: SESSIONS.find(s => s.id === selectedSession)?.date || "",
+              date: (() => {
+                const session = SESSIONS.find(s => s.id === selectedSession);
+                return session ? `${session.displayDate} às ${session.time}` : "";
+              })(),
               location: EVENT.location,
               price: EVENT.price,
               id: selectedSession || "",
