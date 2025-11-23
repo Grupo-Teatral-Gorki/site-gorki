@@ -2,11 +2,11 @@ import type { Metadata } from "next";
 import "../globals.css";
 
 export const metadata: Metadata = {
-  title: "Desventuras - Ingressos",
-  description: "Compre ingressos exclusivamente para Desventuras",
+  title: "Eventos - Grupo Teatral Gorki",
+  description: "Compre ingressos para os eventos do Grupo Teatral Gorki",
 };
 
-export default function DesventurasLayout({
+export default function EventosLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
