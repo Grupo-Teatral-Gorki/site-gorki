@@ -269,7 +269,7 @@ export async function POST(request: NextRequest) {
                     return null;
                   }
                 }
-                const logoDataUrl = await loadLogoDataUrl('logo-mark-white.png');
+                const logoDataUrl = "https://firebasestorage.googleapis.com/v0/b/itapevi-cce4e.firebasestorage.app/o/logo-mark-white.png?alt=media&token=44ee639e-3ff9-43a4-8417-5d4d31408909"
 
                 const transporter = nodemailer.createTransport({
                   host: process.env.SMTP_HOST || 'smtp.gmail.com',
@@ -415,8 +415,7 @@ export async function POST(request: NextRequest) {
                       <div class="container">
                         <!-- Header -->
                         <div class="header">
-                          ${logoDataUrl ? `<img src="${logoDataUrl}" alt="Grupo Teatral Gorki" style="height: 80px; width: auto; margin: 0 auto 15px;" />` : '<h1 class="logo">GORKI</h1>'}
-                          <p class="subtitle">GRUPO TEATRAL</p>
+                          ${logoDataUrl ? `<img src="${logoDataUrl}" alt="Grupo Teatral Gorki" style="height: 80px; width: auto; margin: 0 auto 15px;" />` : '<h1 class="logo">GORKI</h1>'}                          
                         </div>
                         
                         <!-- Content -->
@@ -466,9 +465,6 @@ export async function POST(request: NextRequest) {
                         <!-- Footer -->
                         <div class="footer">
                           <p>Grupo Teatral Gorki</p>
-                          <p style="margin-top: 10px;">
-                            Dúvidas? Entre em contato: <a href="mailto:criarte@grupoteatralgorki.com">criarte@grupoteatralgorki.com</a>
-                          </p>
                           <p style="margin-top: 15px; font-size: 11px;">
                             Este é um e-mail automático. Por favor, não responda.
                           </p>
