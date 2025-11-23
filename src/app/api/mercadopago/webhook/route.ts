@@ -5,6 +5,8 @@ import { collection, addDoc } from 'firebase/firestore';
 import nodemailer from 'nodemailer';
 import QRCode from 'qrcode';
 import { generateTicketsPdf } from '@/lib/pdf/generateTicketsPdf';
+import fs from 'fs/promises';
+import path from 'path';
 
 const MERCADOPAGO_BASE_URL = 'https://api.mercadopago.com';
 
@@ -256,6 +258,19 @@ export async function POST(request: NextRequest) {
             const recipient = paymentData.customerEmail;
             if (pdfBuffer && recipient) {
               try {
+                // Load logo for email
+                async function loadLogoDataUrl(filename: string): Promise<string | null> {
+                  try {
+                    const filePath = path.join(process.cwd(), 'public', filename);
+                    const buf = await fs.readFile(filePath);
+                    const ext = path.extname(filename).replace('.', '') || 'png';
+                    return `data:image/${ext};base64,${buf.toString('base64')}`;
+                  } catch {
+                    return null;
+                  }
+                }
+                const logoDataUrl = await loadLogoDataUrl('logo-mark-white.png');
+
                 const transporter = nodemailer.createTransport({
                   host: process.env.SMTP_HOST || 'smtp.gmail.com',
                   port: parseInt(process.env.SMTP_PORT || '587'),
@@ -270,15 +285,197 @@ export async function POST(request: NextRequest) {
                   from: `"Grupo Teatral Gorki" <${process.env.SMTP_USER}>`,
                   replyTo: process.env.SMTP_FROM || 'noreply@grupoteatralgorki.com',
                   to: recipient,
-                  subject: `Seus ingressos - ${paymentData.eventTitle}`,
+                  subject: `🎭 Seus ingressos - ${paymentData.eventTitle}`,
                   html: `
-                    <p>Olá ${paymentData.customerName || ''},</p>
-                    <p>Obrigado pela sua compra! Seus ingressos para <strong>${paymentData.eventTitle}</strong> estão em anexo.</p>
-                    <p>
-                      Data: ${paymentData.eventDate}<br/>
-                      Local: ${paymentData.eventLocation}
-                    </p>
-                    <p>Apresente o PDF na entrada. Cada QR Code é válido uma única vez.</p>
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                      <meta charset="utf-8">
+                      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                      <style>
+                        body {
+                          margin: 0;
+                          padding: 0;
+                          font-family: 'Arial', 'Helvetica', sans-serif;
+                          background-color: #f4f4f4;
+                        }
+                        .container {
+                          max-width: 600px;
+                          margin: 0 auto;
+                          background-color: #ffffff;
+                        }
+                        .header {
+                          background: #000000;
+                          padding: 40px 20px;
+                          text-align: center;
+                        }
+                        .logo {
+                          font-size: 32px;
+                          font-weight: 900;
+                          color: #facc15;
+                          letter-spacing: 2px;
+                          margin: 0;
+                        }
+                        .subtitle {
+                          color: #e5e7eb;
+                          font-size: 14px;
+                          margin-top: 10px;
+                          letter-spacing: 3px;
+                          font-weight: 600;
+                          text-transform: uppercase;
+                        }
+                        .content {
+                          padding: 40px 30px;
+                        }
+                        .greeting {
+                          font-size: 24px;
+                          color: #1a1a1a;
+                          margin-bottom: 20px;
+                          font-weight: 700;
+                        }
+                        .message {
+                          font-size: 16px;
+                          color: #4a4a4a;
+                          line-height: 1.6;
+                          margin-bottom: 30px;
+                        }
+                        .event-card {
+                          background: #000000;
+                          border-radius: 12px;
+                          padding: 25px;
+                          margin: 30px 0;
+                          border-left: 4px solid #facc15;
+                        }
+                        .event-title {
+                          font-size: 22px;
+                          font-weight: 800;
+                          color: #facc15;
+                          margin: 0 0 15px 0;
+                        }
+                        .event-details {
+                          color: #e5e7eb;
+                          font-size: 15px;
+                          line-height: 1.8;
+                        }
+                        .event-details strong {
+                          color: #facc15;
+                          font-weight: 700;
+                        }
+                        .info-box {
+                          background-color: #fef9c3;
+                          border-left: 4px solid #facc15;
+                          padding: 20px;
+                          margin: 25px 0;
+                          border-radius: 4px;
+                        }
+                        .info-box p {
+                          margin: 0;
+                          color: #5d4e00;
+                          font-size: 14px;
+                          line-height: 1.6;
+                        }
+                        .attachment-notice {
+                          background-color: #f0f0f0;
+                          padding: 20px;
+                          border-radius: 8px;
+                          text-align: center;
+                          margin: 25px 0;
+                        }
+                        .attachment-icon {
+                          font-size: 40px;
+                          margin-bottom: 10px;
+                        }
+                        .attachment-text {
+                          color: #4a4a4a;
+                          font-size: 14px;
+                          margin: 5px 0;
+                        }
+                        .footer {
+                          background-color: #000000;
+                          padding: 30px 20px;
+                          text-align: center;
+                          color: #9ca3af;
+                          font-size: 12px;
+                        }
+                        .footer a {
+                          color: #facc15;
+                          text-decoration: none;
+                        }
+                        .footer a:hover {
+                          color: #fde047;
+                        }
+                        .divider {
+                          height: 1px;
+                          background: linear-gradient(to right, transparent, #e0e0e0, transparent);
+                          margin: 30px 0;
+                        }
+                      </style>
+                    </head>
+                    <body>
+                      <div class="container">
+                        <!-- Header -->
+                        <div class="header">
+                          ${logoDataUrl ? `<img src="${logoDataUrl}" alt="Grupo Teatral Gorki" style="height: 80px; width: auto; margin: 0 auto 15px;" />` : '<h1 class="logo">GORKI</h1>'}
+                          <p class="subtitle">GRUPO TEATRAL</p>
+                        </div>
+                        
+                        <!-- Content -->
+                        <div class="content">
+                          <h2 class="greeting">Olá, ${paymentData.customerName || 'Cliente'}! 👋</h2>
+                          
+                          <p class="message">
+                            Obrigado pela sua compra! Estamos muito felizes em recebê-lo(a) em nosso espetáculo.
+                            Seus ingressos estão anexados neste e-mail em formato PDF.
+                          </p>
+                          
+                          <!-- Event Card -->
+                          <div class="event-card">
+                            <h3 class="event-title">🎭 ${paymentData.eventTitle}</h3>
+                            <div class="event-details">
+                              <p><strong>📅 Data e Horário:</strong> ${paymentData.eventDate}</p>
+                              <p><strong>📍 Local:</strong> ${paymentData.eventLocation}</p>
+                              <p><strong>🎫 Quantidade:</strong> ${paymentData.ticketQuantity} ${paymentData.ticketQuantity === 1 ? 'ingresso' : 'ingressos'}</p>
+                            </div>
+                          </div>
+                          
+                          <!-- Important Info -->
+                          <div class="info-box">
+                            <p><strong>⚠️ Informações Importantes:</strong></p>
+                            <p style="margin-top: 10px;">
+                              • Apresente o PDF na entrada do evento<br>
+                              • Cada QR Code é válido para <strong>uma única entrada</strong><br>
+                              • Chegue com antecedência para facilitar a entrada<br>
+                              • Guarde este e-mail para consulta
+                            </p>
+                          </div>
+                          
+                          <!-- Attachment Notice -->
+                          <div class="attachment-notice">
+                            <div class="attachment-icon">📎</div>
+                            <p class="attachment-text"><strong>Seus ingressos estão anexados neste e-mail</strong></p>
+                            <p class="attachment-text">Arquivo: ingressos.pdf</p>
+                          </div>
+                          
+                          <div class="divider"></div>
+                          
+                          <p class="message" style="text-align: center; color: #666;">
+                            Nos vemos no teatro! 🎭✨
+                          </p>
+                        </div>
+                        
+                        <!-- Footer -->
+                        <div class="footer">
+                          <p>Grupo Teatral Gorki</p>
+                          <p style="margin-top: 10px;">
+                            Dúvidas? Entre em contato: <a href="mailto:criarte@grupoteatralgorki.com">criarte@grupoteatralgorki.com</a>
+                          </p>
+                          <p style="margin-top: 15px; font-size: 11px;">
+                            Este é um e-mail automático. Por favor, não responda.
+                          </p>
+                        </div>
+                      </div>
+                    </body>
+                    </html>
                   `,
                   attachments: [
                     {
