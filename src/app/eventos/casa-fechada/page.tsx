@@ -24,8 +24,8 @@ const EVENT = {
   image: "https://firebasestorage.googleapis.com/v0/b/itapevi-cce4e.firebasestorage.app/o/WhatsApp%20Image%202025-09-30%20at%2017.40.58.jpeg?alt=media&token=67add5bd-893c-49fc-86ef-287e1040f83a",
   // Preços em string no formato já usado no site
   price: "R$ 00,00",
-  priceInteira: "40.00",
-  priceMeia: "20.00",
+  priceInteira: "00.02",
+  priceMeia: "00.01",
   release: `• Peça: A CASA FECHADA 
 • Texto de: Roberto Gomes 
 • Direção: Bolinha Monteiro 
