@@ -45,10 +45,40 @@ const MercadoPagoPayment: React.FC<MercadoPagoPaymentProps> = ({
   const [preferenceId, setPreferenceId] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
   const [showWallet, setShowWallet] = useState(false);
+  const [transactionId, setTransactionId] = useState<string>('');
 
   const createPreference = async () => {
     setIsLoading(true);
     try {
+      // Step 1: Create transaction record first
+      const transactionResponse = await fetch('/api/transactions/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          customerInfo,
+          eventInfo,
+          ticketQuantity,
+          ticketType,
+          ticketInteiraQty: breakdown?.inteira ?? (ticketType === 'inteira' ? ticketQuantity : 0),
+          ticketMeiaQty: breakdown?.meia ?? (ticketType === 'meia' ? ticketQuantity : 0),
+          totalAmount: amount,
+        }),
+      });
+
+      const transactionData = await transactionResponse.json();
+
+      if (!transactionData.success || !transactionData.transactionId) {
+        onError('Erro ao criar registro da transação');
+        return;
+      }
+
+      const txId = transactionData.transactionId;
+      setTransactionId(txId);
+      console.log('✅ Transaction created:', txId);
+
+      // Step 2: Create MercadoPago preference with transaction ID
       const response = await fetch('/api/mercadopago/create-preference', {
         method: 'POST',
         headers: {
@@ -62,14 +92,27 @@ const MercadoPagoPayment: React.FC<MercadoPagoPaymentProps> = ({
           ticketType,
           ticketInteiraQty: breakdown?.inteira ?? (ticketType === 'inteira' ? ticketQuantity : 0),
           ticketMeiaQty: breakdown?.meia ?? (ticketType === 'meia' ? ticketQuantity : 0),
+          transactionId: txId,
         }),
       });
 
       const data = await response.json();
-      
+
       if (data.preferenceId) {
         setPreferenceId(data.preferenceId);
         setShowWallet(true);
+
+        // Update transaction with preference ID
+        await fetch('/api/transactions/update', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            transactionId: txId,
+            preferenceId: data.preferenceId,
+          }),
+        });
       } else {
         onError('Erro ao criar preferência de pagamento');
       }
@@ -98,7 +141,7 @@ const MercadoPagoPayment: React.FC<MercadoPagoPaymentProps> = ({
         <div className="bg-gray-50 rounded-lg p-4 mb-4">
           <p className="text-sm text-gray-600">Evento: <span className="font-medium">{eventInfo.title}</span></p>
           <p className="text-sm text-gray-600">Data: <span className="font-medium">{eventInfo.date}</span></p>
-          <p className="text-sm text-gray-600">Quantidade: <span className="font-medium">{ticketQuantity} ingresso(s)</span></p>          
+          <p className="text-sm text-gray-600">Quantidade: <span className="font-medium">{ticketQuantity} ingresso(s)</span></p>
           <p className="text-lg font-bold text-gray-900 mt-2">
             Total: R$ {amount.toFixed(2).replace('.', ',')}
           </p>
@@ -109,9 +152,9 @@ const MercadoPagoPayment: React.FC<MercadoPagoPaymentProps> = ({
         <div className="space-y-4">
           <div className="bg-blue-50 rounded-lg p-4 mb-4">
             <div className="flex items-center justify-center mb-3">
-              <img 
+              <img
                 src="https://http2.mlstatic.com/frontend-assets/ui-navigation/5.21.22/mercadolibre/logo__large_plus@2x.png"
-                alt="Mercado Pago" 
+                alt="Mercado Pago"
                 className="h-10 object-contain"
                 onError={(e) => {
                   // Try alternative URL
@@ -127,7 +170,7 @@ const MercadoPagoPayment: React.FC<MercadoPagoPaymentProps> = ({
               />
               <div className="hidden">
                 <svg className="h-10 w-auto" viewBox="0 0 200 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <rect width="200" height="60" rx="8" fill="#009EE3"/>
+                  <rect width="200" height="60" rx="8" fill="#009EE3" />
                   <text x="100" y="35" textAnchor="middle" fill="white" fontSize="18" fontWeight="bold" fontFamily="Arial, sans-serif">
                     MercadoPago
                   </text>
@@ -176,11 +219,11 @@ const MercadoPagoPayment: React.FC<MercadoPagoPaymentProps> = ({
               Complete o pagamento na janela do Mercado Pago
             </p>
           </div>
-          
+
           {preferenceId && (
             <div className="mercadopago-wallet-container">
-              <Wallet 
-                initialization={{ 
+              <Wallet
+                initialization={{
                   preferenceId: preferenceId
                 }}
                 onReady={() => {
@@ -193,7 +236,7 @@ const MercadoPagoPayment: React.FC<MercadoPagoPaymentProps> = ({
               />
             </div>
           )}
-          
+
           <button
             type="button"
             onClick={onCancel}

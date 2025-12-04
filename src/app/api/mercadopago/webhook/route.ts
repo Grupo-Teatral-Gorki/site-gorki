@@ -21,6 +21,17 @@ export async function OPTIONS() {
   return new Response(null, { status: 200, headers: corsHeaders });
 }
 
+// Helper function to get base URL based on environment
+function getBaseUrl(): string {
+  if (process.env.NEXT_PUBLIC_BASE_URL) {
+    return process.env.NEXT_PUBLIC_BASE_URL;
+  }
+  if (process.env.NODE_ENV === 'development') {
+    return process.env.NEXT_PUBLIC_NGROK_URL || 'http://localhost:3000';
+  }
+  return 'https://www.grupogorki.com.br';
+}
+
 // Validate webhook signature according to MercadoPago docs
 function validateSignature(xSignature: string, xRequestId: string, dataID: string, body: string): boolean {
   if (!process.env.MERCADOPAGO_WEBHOOK_SECRET) {
@@ -147,11 +158,36 @@ export async function POST(request: NextRequest) {
             const { ticketStore } = await import('@/lib/ticketStore');
             const { randomUUID } = await import('crypto');
 
-            // Save payment data first
+            // Extract metadata
             const meta = paymentInfo.metadata || {};
             const metaInteira = parseInt(meta.ticket_inteira_qty || '0');
             const metaMeia = parseInt(meta.ticket_meia_qty || '0');
             const computedTotal = (metaInteira + metaMeia) || parseInt(meta.ticket_quantity || '1');
+            const transactionId = meta.transaction_id || paymentInfo.external_reference;
+
+            // Update transaction status to 'aprovado'
+            try {
+              await fetch(`${getBaseUrl()}/api/transactions/update`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  transactionId,
+                  status: 'aprovado',
+                  paymentId: paymentInfo.id.toString(),
+                  externalReference: paymentInfo.external_reference,
+                  additionalData: {
+                    paymentType: paymentInfo.payment_method_id,
+                    transactionAmount: paymentInfo.transaction_amount,
+                    dateApproved: paymentInfo.date_approved,
+                  }
+                })
+              });
+              console.log('✅ Transaction updated to aprovado:', transactionId);
+            } catch (e) {
+              console.error('Failed to update transaction status:', e);
+            }
+
+            // Save payment data for backward compatibility
             const paymentData = {
               paymentId: paymentInfo.id.toString(),
               status: 'approved',
@@ -493,8 +529,54 @@ export async function POST(request: NextRequest) {
           }
         } else if (paymentInfo.status === 'rejected') {
           console.log('❌ Payment rejected:', paymentInfo.external_reference);
+
+          // Update transaction status to 'recusado'
+          const meta = paymentInfo.metadata || {};
+          const transactionId = meta.transaction_id || paymentInfo.external_reference;
+          try {
+            await fetch(`${getBaseUrl()}/api/transactions/update`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                transactionId,
+                status: 'recusado',
+                paymentId: paymentInfo.id.toString(),
+                externalReference: paymentInfo.external_reference,
+                additionalData: {
+                  paymentType: paymentInfo.payment_method_id,
+                  statusDetail: paymentInfo.status_detail,
+                }
+              })
+            });
+            console.log('✅ Transaction updated to recusado:', transactionId);
+          } catch (e) {
+            console.error('Failed to update transaction status:', e);
+          }
         } else if (paymentInfo.status === 'pending') {
           console.log('⏳ Payment pending:', paymentInfo.external_reference);
+
+          // Update transaction status to 'pendente'
+          const meta = paymentInfo.metadata || {};
+          const transactionId = meta.transaction_id || paymentInfo.external_reference;
+          try {
+            await fetch(`${getBaseUrl()}/api/transactions/update`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                transactionId,
+                status: 'pendente',
+                paymentId: paymentInfo.id.toString(),
+                externalReference: paymentInfo.external_reference,
+                additionalData: {
+                  paymentType: paymentInfo.payment_method_id,
+                  statusDetail: paymentInfo.status_detail,
+                }
+              })
+            });
+            console.log('✅ Transaction updated to pendente:', transactionId);
+          } catch (e) {
+            console.error('Failed to update transaction status:', e);
+          }
         }
 
       } catch (error) {

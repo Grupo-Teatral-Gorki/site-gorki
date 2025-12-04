@@ -20,20 +20,20 @@ function getBaseUrl(): string {
   if (process.env.NEXT_PUBLIC_BASE_URL) {
     return process.env.NEXT_PUBLIC_BASE_URL;
   }
-  
+
   // Check environment
   if (process.env.NODE_ENV === 'development') {
     // For local development, use localhost
     return process.env.NEXT_PUBLIC_NGROK_URL || 'http://localhost:3000';
   }
-  
+
   // Fallback for production
   return 'https://www.grupogorki.com.br';
 }
 
 export async function POST(request: NextRequest) {
   try {
-    const { amount, customerInfo, eventInfo, ticketQuantity, ticketType = 'inteira', ticketInteiraQty, ticketMeiaQty } = await request.json();
+    const { amount, customerInfo, eventInfo, ticketQuantity, ticketType = 'inteira', ticketInteiraQty, ticketMeiaQty, transactionId } = await request.json();
 
     if (!process.env.MERCADOPAGO_ACCESS_TOKEN) {
       return NextResponse.json(
@@ -72,8 +72,9 @@ export async function POST(request: NextRequest) {
         failure: `${getBaseUrl()}/payment-failure`,
         pending: `${getBaseUrl()}/payment-success`,
       },
-      external_reference: `event-${eventInfo.id}-${Date.now()}`,
+      external_reference: transactionId || `event-${eventInfo.id}-${Date.now()}`,
       metadata: {
+        transaction_id: transactionId || '',
         event_id: eventInfo.id,
         event_title: eventInfo.title,
         event_date: eventInfo.date,
