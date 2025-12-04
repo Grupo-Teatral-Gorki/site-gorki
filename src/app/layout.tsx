@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Grupo Teatral Gorki",
-  description: "Grupo Teatral Gorki - Teatro, cultura e arte em Itapevi",
+  description: "Grupo Teatral Gorki - Teatro, cultura e arte.",
   icons: {
     icon: '/favicon.ico',
   },
