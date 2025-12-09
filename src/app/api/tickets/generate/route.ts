@@ -16,7 +16,17 @@ export async function OPTIONS() {
 
 export async function POST(request: NextRequest) {
   try {
-    const { paymentId, externalReference, customerInfo, eventInfo, ticketQuantity } = await request.json();
+    const {
+      paymentId,
+      externalReference,
+      customerInfo,
+      eventInfo,
+      ticketQuantity,
+      ticketInteiraQty,
+      ticketMeiaQty,
+      totalAmount,
+      notes
+    } = await request.json();
 
     if (!paymentId || !externalReference || !customerInfo || !eventInfo || !ticketQuantity) {
       return NextResponse.json(
@@ -27,6 +37,7 @@ export async function POST(request: NextRequest) {
 
     // First, save payment data to payments collection
     const store = ticketStore as FirestoreTicketStore;
+    const isManual = paymentId.startsWith('MANUAL-');
     const paymentData: PaymentData = {
       paymentId,
       status: 'approved',
@@ -38,8 +49,12 @@ export async function POST(request: NextRequest) {
       eventDate: eventInfo.date,
       eventLocation: eventInfo.location,
       ticketQuantity,
+      ticketInteiraQty: ticketInteiraQty || 0,
+      ticketMeiaQty: ticketMeiaQty || 0,
       ticketType: 'inteira', // Default ticket type
-      totalAmount: 0, // This should come from the payment data
+      totalAmount: totalAmount || 0,
+      notes: notes || '',
+      isManual: isManual,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
@@ -51,7 +66,7 @@ export async function POST(request: NextRequest) {
     for (let i = 1; i <= ticketQuantity; i++) {
       const ticketId = crypto.randomUUID();
       const ticketNumber = `${eventInfo.id}-${paymentId}-${i.toString().padStart(3, '0')}`;
-      
+
       // Create QR code data with validation info
       const qrData = {
         ticketId,

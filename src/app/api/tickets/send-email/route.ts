@@ -23,10 +23,23 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    // Create attachments array for QR codes
+    const attachments: any[] = [];
+
     // Create HTML email content
     let ticketsHtml = '';
     tickets.forEach((ticket: any, index: number) => {
       const qrCodeData = qrCodes[ticket.ticketId];
+      const cid = `qrcode-${ticket.ticketId}`;
+
+      // Add QR code as attachment with CID
+      attachments.push({
+        filename: `qrcode-${index + 1}.png`,
+        content: qrCodeData.split('base64,')[1],
+        encoding: 'base64',
+        cid: cid
+      });
+
       ticketsHtml += `
         <div style="border: 1px solid #ddd; margin: 20px 0; padding: 20px; border-radius: 8px;">
           <h3 style="color: #333;">Ingresso #${index + 1}</h3>
@@ -36,7 +49,7 @@ export async function POST(request: NextRequest) {
           <p><strong>Local:</strong> ${ticket.eventLocation}</p>
           <p><strong>Portador:</strong> ${ticket.customerName}</p>
           <div style="text-align: center; margin: 20px 0;">
-            <img src="${qrCodeData}" alt="QR Code" style="max-width: 200px;" />
+            <img src="cid:${cid}" alt="QR Code" style="max-width: 200px;" />
             <p style="font-size: 12px; color: #666;">Apresente este QR Code na entrada do evento</p>
           </div>
         </div>
@@ -83,11 +96,12 @@ export async function POST(request: NextRequest) {
       to: email,
       subject: `Seus Ingressos Digitais - Pagamento ${paymentId}`,
       html: htmlContent,
+      attachments: attachments,
     });
 
-    return NextResponse.json({ 
-      success: true, 
-      message: 'Ingressos enviados por e-mail com sucesso!' 
+    return NextResponse.json({
+      success: true,
+      message: 'Ingressos enviados por e-mail com sucesso!'
     });
 
   } catch (error) {

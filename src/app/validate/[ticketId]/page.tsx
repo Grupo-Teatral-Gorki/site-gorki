@@ -18,7 +18,7 @@ interface TicketInfo {
 export default function ValidateTicket() {
   const params = useParams();
   const ticketId = params.ticketId as string;
-  
+
   const [password, setPassword] = useState('');
   const [isValidating, setIsValidating] = useState(false);
   const [validationResult, setValidationResult] = useState<{
@@ -49,7 +49,7 @@ export default function ValidateTicket() {
 
       const result = await response.json();
       setValidationResult(result);
-      
+
       if (result.success) {
         setPassword(''); // Clear password on success
       }
@@ -94,7 +94,7 @@ export default function ValidateTicket() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Digite a senha"
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg"
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg text-foreground bg-background dark:border-gray-600"
                   onKeyPress={(e) => e.key === 'Enter' && handleValidation()}
                   autoFocus
                 />
@@ -116,30 +116,27 @@ export default function ValidateTicket() {
             </div>
           ) : (
             <div className="text-center">
-              <div className={`p-6 rounded-lg mb-6 ${
-                validationResult.success 
-                  ? 'bg-green-100 border border-green-300' 
+              <div className={`p-6 rounded-lg mb-6 ${validationResult.success
+                  ? 'bg-green-100 border border-green-300'
                   : validationResult.status === 'used'
-                  ? 'bg-yellow-100 border border-yellow-300'
-                  : 'bg-red-100 border border-red-300'
-              }`}>
-                <div className={`text-6xl mb-4 ${
-                  validationResult.success 
-                    ? 'text-green-600' 
-                    : validationResult.status === 'used'
-                    ? 'text-yellow-600'
-                    : 'text-red-600'
+                    ? 'bg-yellow-100 border border-yellow-300'
+                    : 'bg-red-100 border border-red-300'
                 }`}>
+                <div className={`text-6xl mb-4 ${validationResult.success
+                    ? 'text-green-600'
+                    : validationResult.status === 'used'
+                      ? 'text-yellow-600'
+                      : 'text-red-600'
+                  }`}>
                   {validationResult.success ? '✅' : validationResult.status === 'used' ? '⚠️' : '❌'}
                 </div>
-                
-                <h2 className={`text-xl font-bold mb-2 ${
-                  validationResult.success 
-                    ? 'text-green-800' 
+
+                <h2 className={`text-xl font-bold mb-2 ${validationResult.success
+                    ? 'text-green-800'
                     : validationResult.status === 'used'
-                    ? 'text-yellow-800'
-                    : 'text-red-800'
-                }`}>
+                      ? 'text-yellow-800'
+                      : 'text-red-800'
+                  }`}>
                   {validationResult.message}
                 </h2>
 

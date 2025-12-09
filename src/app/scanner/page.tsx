@@ -33,21 +33,21 @@ function QRScanner() {
     return () => {
       // Cleanup scanner on unmount
       if (scannerRef.current) {
-        scannerRef.current.stop().catch(() => {});
+        scannerRef.current.stop().catch(() => { });
       }
     };
   }, []);
 
   const startScanner = async () => {
     if (!isMounted) return;
-    
+
     setIsScanning(true);
     setValidationResult(null);
 
     try {
       // Dynamic import to avoid SSR issues
       const { Html5Qrcode } = await import('html5-qrcode');
-      
+
       const element = document.getElementById('qr-reader');
       if (!element) {
         console.error('QR reader element not found');
@@ -56,29 +56,29 @@ function QRScanner() {
       }
 
       scannerRef.current = new Html5Qrcode('qr-reader');
-      
+
       // Get camera devices
       const devices = await Html5Qrcode.getCameras();
       if (devices && devices.length > 0) {
         // Prefer back camera (environment facing) over front camera (user facing)
         let cameraId = devices[0].id;
-        
+
         // Look for back camera
-        const backCamera = devices.find(device => 
-          device.label.toLowerCase().includes('back') || 
+        const backCamera = devices.find(device =>
+          device.label.toLowerCase().includes('back') ||
           device.label.toLowerCase().includes('rear') ||
           device.label.toLowerCase().includes('environment')
         );
-        
+
         if (backCamera) {
           cameraId = backCamera.id;
         } else if (devices.length > 1) {
           // If no explicit back camera found, use the second camera (usually back on mobile)
           cameraId = devices[1].id;
         }
-        
+
         console.log('Starting scanner with camera:', cameraId);
-        
+
         await scannerRef.current.start(
           cameraId,
           {
@@ -102,7 +102,7 @@ function QRScanner() {
             }
           }
         );
-        
+
         console.log('Scanner started successfully');
       } else {
         throw new Error('No cameras found');
@@ -229,7 +229,7 @@ function QRScanner() {
                     value={manualInput}
                     onChange={(e) => setManualInput(e.target.value)}
                     placeholder="Cole o código QR aqui..."
-                    className="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-foreground bg-background dark:border-gray-600"
                     onKeyPress={(e) => e.key === 'Enter' && handleManualValidation()}
                   />
                   <button
@@ -247,30 +247,27 @@ function QRScanner() {
           {/* Validation Result */}
           {validationResult && (
             <div className="text-center">
-              <div className={`p-6 rounded-lg mb-6 ${
-                validationResult.valid 
-                  ? 'bg-green-100 border border-green-300' 
+              <div className={`p-6 rounded-lg mb-6 ${validationResult.valid
+                  ? 'bg-green-100 border border-green-300'
                   : validationResult.status === 'used'
-                  ? 'bg-yellow-100 border border-yellow-300'
-                  : 'bg-red-100 border border-red-300'
-              }`}>
-                <div className={`text-6xl mb-4 ${
-                  validationResult.valid 
-                    ? 'text-green-600' 
-                    : validationResult.status === 'used'
-                    ? 'text-yellow-600'
-                    : 'text-red-600'
+                    ? 'bg-yellow-100 border border-yellow-300'
+                    : 'bg-red-100 border border-red-300'
                 }`}>
+                <div className={`text-6xl mb-4 ${validationResult.valid
+                    ? 'text-green-600'
+                    : validationResult.status === 'used'
+                      ? 'text-yellow-600'
+                      : 'text-red-600'
+                  }`}>
                   {validationResult.valid ? '✅' : validationResult.status === 'used' ? '⚠️' : '❌'}
                 </div>
-                
-                <h2 className={`text-2xl font-bold mb-2 ${
-                  validationResult.valid 
-                    ? 'text-green-800' 
+
+                <h2 className={`text-2xl font-bold mb-2 ${validationResult.valid
+                    ? 'text-green-800'
                     : validationResult.status === 'used'
-                    ? 'text-yellow-800'
-                    : 'text-red-800'
-                }`}>
+                      ? 'text-yellow-800'
+                      : 'text-red-800'
+                  }`}>
                   {validationResult.message}
                 </h2>
 

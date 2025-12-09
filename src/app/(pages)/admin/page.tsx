@@ -179,12 +179,12 @@ export default function AdminPage() {
   // Event handlers
   const handleEventChange = (idx: number, field: keyof EventItem, value: string) => {
     let formattedValue = value;
-    
+
     // Format price fields to ensure dot decimal format when saving
     if (field === 'priceInteira' || field === 'priceMeia') {
       formattedValue = value.replace(',', '.');
     }
-    
+
     setSiteData((prev) => ({
       ...prev,
       home: {
@@ -203,16 +203,16 @@ export default function AdminPage() {
         ...prev.home,
         nextEvents: [
           ...prev.home.nextEvents,
-          { 
-            title: "", 
-            description: "", 
-            date: "", 
-            location: "", 
-            image: "", 
-            price: "", 
+          {
+            title: "",
+            description: "",
+            date: "",
+            location: "",
+            image: "",
+            price: "",
             priceInteira: "",
             priceMeia: "",
-            id: `event-${Date.now()}` 
+            id: `event-${Date.now()}`
           },
         ],
       },
@@ -321,7 +321,7 @@ export default function AdminPage() {
             <h2 className="text-3xl font-bold text-gray-900 mb-2">Área Restrita</h2>
             <p className="text-gray-600">Digite a senha para acessar o painel administrativo</p>
           </div>
-          
+
           <form onSubmit={handlePasswordSubmit} className="space-y-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -329,20 +329,20 @@ export default function AdminPage() {
               </label>
               <input
                 type="password"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors text-gray-900 bg-white"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors text-foreground bg-background dark:border-gray-600"
                 placeholder="Digite a senha"
                 value={passwordInput}
                 onChange={(e) => setPasswordInput(e.target.value)}
                 autoFocus
               />
             </div>
-            
+
             {error && (
               <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
                 {error}
               </div>
             )}
-            
+
             <button
               type="submit"
               className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg"
@@ -423,7 +423,7 @@ export default function AdminPage() {
                 </svg>
               </div>
             </button>
-            
+
             {openSections.banners && (
               <div className="border-t border-gray-200 p-6">
                 <div className="space-y-6">
@@ -441,14 +441,14 @@ export default function AdminPage() {
                       >
                         <span className="text-xl font-bold">&times;</span>
                       </button>
-                      
+
                       <div className="space-y-4 pr-12">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">
                             Título
                           </label>
                           <input
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 bg-white"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-foreground bg-background dark:border-gray-600"
                             placeholder="Digite o título do banner"
                             value={banner.title}
                             onChange={(e) =>
@@ -461,13 +461,13 @@ export default function AdminPage() {
                             }
                           />
                         </div>
-                        
+
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">
                             Descrição
                           </label>
                           <textarea
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 bg-white"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-foreground bg-background dark:border-gray-600"
                             placeholder="Digite a descrição do banner"
                             rows={3}
                             value={banner.description}
@@ -481,7 +481,7 @@ export default function AdminPage() {
                             }
                           />
                         </div>
-                        
+
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">
                             Imagem
@@ -503,7 +503,7 @@ export default function AdminPage() {
                       </div>
                     </div>
                   ))}
-                  
+
                   <button
                     className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
                     onClick={() =>
@@ -537,7 +537,7 @@ export default function AdminPage() {
                 </svg>
               </div>
             </button>
-            
+
             {openSections.events && (
               <div className="border-t border-gray-200 p-6">
                 <div className="space-y-6">
@@ -550,7 +550,7 @@ export default function AdminPage() {
                       >
                         <span className="text-xl font-bold">&times;</span>
                       </button>
-                      
+
                       <div className="space-y-4 pr-12">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div>
@@ -558,71 +558,71 @@ export default function AdminPage() {
                               Título
                             </label>
                             <input
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 bg-white"
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-foreground bg-background dark:border-gray-600"
                               placeholder="Digite o título do evento"
                               value={event.title}
                               onChange={(e) => handleEventChange(idx, "title", e.target.value)}
                             />
                           </div>
-                          
+
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
                               Data
                             </label>
                             <input
                               type="date"
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 bg-white"
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-foreground bg-background dark:border-gray-600"
                               value={event.date}
                               onChange={(e) => handleEventChange(idx, "date", e.target.value)}
                             />
                           </div>
                         </div>
-                        
+
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">
                             Local
                           </label>
                           <input
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 bg-white"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-foreground bg-background dark:border-gray-600"
                             placeholder="Digite o local do evento"
                             value={event.location}
                             onChange={(e) => handleEventChange(idx, "location", e.target.value)}
                           />
                         </div>
-                        
+
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
                               Preço (Legado)
                             </label>
                             <input
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 bg-white"
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-foreground bg-background dark:border-gray-600"
                               placeholder="Ex: R$ 50,00 ou Gratuito"
                               value={event.price}
                               onChange={(e) => handleEventChange(idx, "price", e.target.value)}
                             />
                             <p className="text-xs text-gray-500 mt-1">Usado para compatibilidade</p>
                           </div>
-                          
+
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
                               Preço Inteira
                             </label>
                             <input
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 bg-white"
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-foreground bg-background dark:border-gray-600"
                               placeholder="Ex: 50.00"
                               value={event.priceInteira || ""}
                               onChange={(e) => handleEventChange(idx, "priceInteira", e.target.value)}
                             />
                             <p className="text-xs text-gray-500 mt-1">Valor em reais (sem R$)</p>
                           </div>
-                          
+
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
                               Preço Meia
                             </label>
                             <input
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 bg-white"
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-foreground bg-background dark:border-gray-600"
                               placeholder="Ex: 25.00"
                               value={event.priceMeia || ""}
                               onChange={(e) => handleEventChange(idx, "priceMeia", e.target.value)}
@@ -630,20 +630,20 @@ export default function AdminPage() {
                             <p className="text-xs text-gray-500 mt-1">Valor em reais (sem R$)</p>
                           </div>
                         </div>
-                        
+
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">
                             Descrição
                           </label>
                           <textarea
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 bg-white"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-foreground bg-background dark:border-gray-600"
                             placeholder="Digite a descrição do evento"
                             rows={3}
                             value={event.description}
                             onChange={(e) => handleEventChange(idx, "description", e.target.value)}
                           />
                         </div>
-                        
+
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">
                             Imagem
@@ -658,7 +658,7 @@ export default function AdminPage() {
                       </div>
                     </div>
                   ))}
-                  
+
                   <button
                     className="w-full py-3 px-4 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
                     onClick={addEvent}
@@ -687,7 +687,7 @@ export default function AdminPage() {
                 </svg>
               </div>
             </button>
-            
+
             {openSections.courses && (
               <div className="border-t border-gray-200 p-6">
                 <div className="space-y-6">
@@ -700,46 +700,46 @@ export default function AdminPage() {
                       >
                         <span className="text-xl font-bold">&times;</span>
                       </button>
-                      
+
                       <div className="space-y-4 pr-12">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">
                             Título
                           </label>
                           <input
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 bg-white"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-foreground bg-background dark:border-gray-600"
                             placeholder="Digite o título do curso"
                             value={course.title}
                             onChange={(e) => handleCourseChange(idx, "title", e.target.value)}
                           />
                         </div>
-                        
+
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">
                             Descrição
                           </label>
                           <textarea
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 bg-white"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-foreground bg-background dark:border-gray-600"
                             placeholder="Digite a descrição do curso"
                             rows={3}
                             value={course.description}
                             onChange={(e) => handleCourseChange(idx, "description", e.target.value)}
                           />
                         </div>
-                        
+
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">
                             Detalhes
                           </label>
                           <textarea
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 bg-white"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-foreground bg-background dark:border-gray-600"
                             placeholder="Digite os detalhes do curso"
                             rows={2}
                             value={course.details}
                             onChange={(e) => handleCourseChange(idx, "details", e.target.value)}
                           />
                         </div>
-                        
+
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">
                             Imagem
@@ -754,7 +754,7 @@ export default function AdminPage() {
                       </div>
                     </div>
                   ))}
-                  
+
                   <button
                     className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
                     onClick={addCourse}

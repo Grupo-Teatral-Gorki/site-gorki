@@ -41,8 +41,8 @@ export default function ValidateTicketPage() {
 
     const newScanner = new Html5QrcodeScanner(
       'qr-reader',
-      { 
-        fps: 10, 
+      {
+        fps: 10,
         qrbox: { width: 250, height: 250 },
         aspectRatio: 1.0
       },
@@ -150,7 +150,7 @@ export default function ValidateTicketPage() {
                     value={manualCode}
                     onChange={(e) => setManualCode(e.target.value)}
                     placeholder="Cole o código do QR aqui..."
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-foreground bg-background dark:border-gray-600"
                   />
                   <button
                     onClick={validateManualCode}
@@ -167,13 +167,12 @@ export default function ValidateTicketPage() {
           {/* Validation Result */}
           {scanResult && (
             <div className="text-center">
-              <div className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 ${
-                scanResult.valid 
-                  ? 'bg-green-100' 
+              <div className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 ${scanResult.valid
+                  ? 'bg-green-100'
                   : scanResult.status === 'already_used'
-                  ? 'bg-orange-100'
-                  : 'bg-red-100'
-              }`}>
+                    ? 'bg-orange-100'
+                    : 'bg-red-100'
+                }`}>
                 {scanResult.valid ? (
                   <svg className="w-10 h-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -189,15 +188,14 @@ export default function ValidateTicketPage() {
                 )}
               </div>
 
-              <h2 className={`text-2xl font-bold mb-2 ${
-                scanResult.valid 
-                  ? 'text-green-600' 
+              <h2 className={`text-2xl font-bold mb-2 ${scanResult.valid
+                  ? 'text-green-600'
                   : scanResult.status === 'already_used'
-                  ? 'text-orange-600'
-                  : 'text-red-600'
-              }`}>
-                {scanResult.valid ? 'ENTRADA AUTORIZADA' : 
-                 scanResult.status === 'already_used' ? 'INGRESSO JÁ UTILIZADO' : 'ENTRADA NEGADA'}
+                    ? 'text-orange-600'
+                    : 'text-red-600'
+                }`}>
+                {scanResult.valid ? 'ENTRADA AUTORIZADA' :
+                  scanResult.status === 'already_used' ? 'INGRESSO JÁ UTILIZADO' : 'ENTRADA NEGADA'}
               </h2>
 
               <p className="text-gray-700 mb-6 text-lg">

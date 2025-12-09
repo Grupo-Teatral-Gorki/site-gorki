@@ -247,7 +247,7 @@ export default function AdminCasaFechadaPage() {
                         <select
                             value={sessionFilter}
                             onChange={(e) => setSessionFilter(e.target.value)}
-                            className="w-full border rounded px-3 py-2"
+                            className="w-full border rounded px-3 py-2 text-foreground bg-background dark:border-gray-600"
                         >
                             <option value="">Todas as sessões</option>
                             {availableSessions.map((session) => (

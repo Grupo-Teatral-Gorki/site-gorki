@@ -31,7 +31,7 @@ const UpcomingEvents = () => {
   const [selectedEvent, setSelectedEvent] = useState<EventData | null>(null);
   const [ticketQuantity, setTicketQuantity] = useState(1);
   const [selectedTicketType, setSelectedTicketType] = useState<'inteira' | 'meia'>('inteira');
-  const [ticketSelection, setTicketSelection] = useState<{inteira: number, meia: number}>({inteira: 0, meia: 0});
+  const [ticketSelection, setTicketSelection] = useState<{ inteira: number, meia: number }>({ inteira: 0, meia: 0 });
   const [customerInfo, setCustomerInfo] = useState({
     name: '',
     email: '',
@@ -69,10 +69,10 @@ const UpcomingEvents = () => {
     return parseFloat(event.price.replace('R$ ', '')) * quantity;
   };
 
-  const calculateTotalFromSelection = (event: EventData, selection: {inteira: number, meia: number}) => {
+  const calculateTotalFromSelection = (event: EventData, selection: { inteira: number, meia: number }) => {
     let total = 0;
     const basePrice = parseFloat(event.price.replace('R$ ', ''));
-    
+
     if (selection.inteira > 0) {
       const inteiraPrice = event.priceInteira ? parseFloat(event.priceInteira) : basePrice;
       total += inteiraPrice * selection.inteira;
@@ -84,7 +84,7 @@ const UpcomingEvents = () => {
     return total;
   };
 
-  const getTotalTicketCount = (selection: {inteira: number, meia: number}) => {
+  const getTotalTicketCount = (selection: { inteira: number, meia: number }) => {
     return selection.inteira + selection.meia;
   };
 
@@ -119,7 +119,7 @@ const UpcomingEvents = () => {
   const formatPhoneNumber = (value: string) => {
     // Remove all non-digits
     const digits = value.replace(/\D/g, '');
-    
+
     // Apply Brazilian phone mask: (11) 99999-9999
     if (digits.length <= 2) {
       return digits;
@@ -146,7 +146,7 @@ const UpcomingEvents = () => {
 
     for (let i = 1; i <= ticketQuantity; i++) {
       const ticketId = `${selectedEvent.id}-${Date.now()}-${i}`;
-      
+
       // Create ticket data for QR code
       const _ticketData = {
         ticketId,
@@ -163,10 +163,10 @@ const UpcomingEvents = () => {
       try {
         // Create verification URL for QR code
         const verificationUrl = `${window.location.origin}/ticket-verification/${ticketId}`;
-        
+
         // Log URL for easy testing
         console.log(`🎫 Ticket ${i} verification URL:`, verificationUrl);
-        
+
         // Generate QR code with verification URL
         const qrCode = await QRCode.toDataURL(verificationUrl, {
           width: 200,
@@ -208,16 +208,16 @@ const UpcomingEvents = () => {
       alert('Por favor, preencha todos os campos obrigatórios.');
       return;
     }
-    
+
     // Check if at least one ticket is selected
-    const totalTickets = selectedEvent?.priceInteira && selectedEvent?.priceMeia ? 
+    const totalTickets = selectedEvent?.priceInteira && selectedEvent?.priceMeia ?
       getTotalTicketCount(ticketSelection) : ticketQuantity;
-    
+
     if (totalTickets === 0) {
       alert('Por favor, selecione pelo menos um ingresso.');
       return;
     }
-    
+
     setShowPayment(true);
   };
 
@@ -225,12 +225,12 @@ const UpcomingEvents = () => {
     try {
       // Generate tickets with QR codes after successful payment
       const tickets = await generateTickets();
-      
+
       // Store tickets in localStorage for verification
       const existingTickets = JSON.parse(localStorage.getItem('generatedTickets') || '[]');
       const allTickets = [...existingTickets, ...tickets];
       localStorage.setItem('generatedTickets', JSON.stringify(allTickets));
-      
+
       // Store payment information
       const paymentInfo = {
         paymentIntentId,
@@ -238,25 +238,25 @@ const UpcomingEvents = () => {
         amount: calculateTotal(selectedEvent!, selectedTicketType, ticketQuantity),
         timestamp: new Date().toISOString(),
       };
-      
+
       const existingPayments = JSON.parse(localStorage.getItem('payments') || '[]');
       localStorage.setItem('payments', JSON.stringify([...existingPayments, paymentInfo]));
-      
+
       // Close drawer and redirect to success page
       setShowPayment(false);
       setShowTickets(false);
       setGeneratedTickets([]);
-      
+
       // Reset form
       setTicketQuantity(1);
       setSelectedTicketType('inteira');
-      setTicketSelection({inteira: 0, meia: 0});
+      setTicketSelection({ inteira: 0, meia: 0 });
       setCustomerInfo({ name: '', email: '', phone: '' });
       setSelectedEvent(null);
-      
+
       // Redirect to payment success page with payment ID
       window.location.href = `/payment-success?payment_id=${paymentIntentId}`;
-      
+
     } catch (_error) {
       console.error('Error generating tickets after payment:', _error);
       alert('Pagamento realizado, mas houve erro ao gerar os ingressos. Entre em contato conosco.');
@@ -372,11 +372,11 @@ const UpcomingEvents = () => {
                   <div className="flex justify-end">
                     <Drawer>
                       <DrawerTrigger asChild>
-                        <button 
+                        <button
                           className="bg-yellow-500 text-black font-bold px-6 py-3 rounded-full shadow hover:bg-yellow-700 transition-colors duration-200 text-base"
                           onClick={() => {
                             setSelectedEvent(event);
-                            setTicketSelection({inteira: 0, meia: 0});
+                            setTicketSelection({ inteira: 0, meia: 0 });
                             setShowPayment(false);
                             setShowTickets(false);
                           }}
@@ -388,7 +388,7 @@ const UpcomingEvents = () => {
                         <DrawerClose className="absolute top-4 right-4 z-10 text-gray-600 hover:text-gray-800 rounded-full p-2 transition-colors hover:bg-gray-50">
                           <span className="text-2xl">&times;</span>
                         </DrawerClose>
-                        
+
                         <div className="p-4 pt-12 bg-gradient-to-b from-gray-50 to-white text-black">
 
                           {showPayment ? (
@@ -425,7 +425,7 @@ const UpcomingEvents = () => {
                                   </p>
                                 )}
                               </div>
-                              
+
                               {generatedTickets.map((ticket) => (
                                 <div key={ticket.ticketId} className="bg-white rounded-xl p-6 shadow-lg border border-gray-200">
                                   <div className="flex flex-col items-center space-y-4">
@@ -440,7 +440,7 @@ const UpcomingEvents = () => {
                                         Tipo: {ticket.ticketType === 'inteira' ? 'Inteira' : 'Meia'}
                                       </p>
                                     </div>
-                                    
+
                                     <div className="bg-gray-50 p-4 rounded-lg flex justify-center">
                                       <canvas
                                         ref={(canvas) => {
@@ -453,7 +453,7 @@ const UpcomingEvents = () => {
                                         }}
                                       />
                                     </div>
-                                    
+
                                     <div className="text-center">
                                       <p className="text-xs text-gray-500 mb-2">
                                         {ticket.eventDate} - {ticket.eventLocation}
@@ -494,7 +494,7 @@ const UpcomingEvents = () => {
                                   <h3 className="text-lg font-bold mb-3 text-gray-800 flex items-center gap-2">
                                     🎫 Selecionar Ingressos
                                   </h3>
-                                  
+
                                   {/* Multiple Ticket Type Selection */}
                                   {true ? (
                                     <div className="space-y-3">
@@ -613,13 +613,13 @@ const UpcomingEvents = () => {
                                           type="text"
                                           value={customerInfo.name}
                                           onChange={(e) => handleInputChange('name', e.target.value)}
-                                          className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 transition-all duration-200 bg-white hover:border-gray-300 text-gray-800 font-medium placeholder-gray-400"
+                                          className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 transition-all duration-200 bg-background hover:border-gray-300 text-foreground font-medium placeholder-gray-400 dark:border-gray-600"
                                           placeholder="Digite seu nome completo"
                                           required
                                         />
                                       </div>
                                     </div>
-                                    
+
                                     <div className="relative">
                                       <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
                                         <span className="w-2 h-2 bg-red-500 rounded-full"></span>
@@ -635,13 +635,13 @@ const UpcomingEvents = () => {
                                           type="email"
                                           value={customerInfo.email}
                                           onChange={(e) => handleInputChange('email', e.target.value)}
-                                          className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 transition-all duration-200 bg-white hover:border-gray-300 text-gray-800 font-medium placeholder-gray-400"
+                                          className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 transition-all duration-200 bg-background hover:border-gray-300 text-foreground font-medium placeholder-gray-400 dark:border-gray-600"
                                           placeholder="Digite seu e-mail"
                                           required
                                         />
                                       </div>
                                     </div>
-                                    
+
                                     <div className="relative">
                                       <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
                                         <span className="w-2 h-2 bg-gray-300 rounded-full"></span>
@@ -658,12 +658,12 @@ const UpcomingEvents = () => {
                                           type="tel"
                                           value={customerInfo.phone}
                                           onChange={(e) => handlePhoneChange(e.target.value)}
-                                          className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 transition-all duration-200 bg-white hover:border-gray-300 text-gray-800 font-medium placeholder-gray-400"
+                                          className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 transition-all duration-200 bg-background hover:border-gray-300 text-foreground font-medium placeholder-gray-400 dark:border-gray-600"
                                           placeholder="(11) 99999-9999"
                                           maxLength={15}
                                         />
                                       </div>
-                                    </div>                                    
+                                    </div>
                                   </div>
                                 </div>
 
@@ -721,23 +721,23 @@ const UpcomingEvents = () => {
                                         </div>
                                       </div>
                                     )}
-                                    
+
                                     <div className="border-t-2 border-green-300 pt-3 mt-3">
                                       <div className="bg-white rounded-xl p-3 shadow-md border-2 border-green-300">
                                         <div className="text-center mb-3">
                                           <p className="text-2xl font-black text-green-600 mb-2">
-                                          R$ {selectedEvent ? calculateTotalFromSelection(selectedEvent!, ticketSelection).toFixed(2) : '0.00'}
+                                            R$ {selectedEvent ? calculateTotalFromSelection(selectedEvent!, ticketSelection).toFixed(2) : '0.00'}
                                           </p>
                                           <p className="text-xs text-gray-600">
                                             Total {(ticketSelection.inteira + ticketSelection.meia)} ingresso{(ticketSelection.inteira + ticketSelection.meia) > 1 ? 's' : ''}
                                           </p>
                                         </div>
-                                        
+
                                         <button
                                           onClick={handleCheckout}
                                           disabled={
-                                            !customerInfo.name || 
-                                            !customerInfo.email || 
+                                            !customerInfo.name ||
+                                            !customerInfo.email ||
                                             (ticketSelection.inteira + ticketSelection.meia === 0)
                                           }
                                           className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 disabled:from-gray-400 disabled:to-gray-500 text-white font-bold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 disabled:scale-100 shadow-lg hover:shadow-xl disabled:cursor-not-allowed flex items-center justify-center gap-3"
@@ -752,7 +752,7 @@ const UpcomingEvents = () => {
                                             </svg>
                                           </div>
                                         </button>
-                                        
+
                                         <div className="mt-3">
                                           <div className="flex items-center justify-center gap-4 text-xs text-gray-500">
                                             <div className="flex items-center gap-1">

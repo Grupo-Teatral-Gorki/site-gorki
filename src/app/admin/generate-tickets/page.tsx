@@ -93,7 +93,7 @@ export default function AdminGenerateTicketsPage() {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full border rounded px-3 py-2"
+              className="w-full border rounded px-3 py-2 text-foreground bg-background dark:border-gray-600"
               placeholder="Digite a senha"
             />
           </div>
@@ -103,7 +103,7 @@ export default function AdminGenerateTicketsPage() {
               type="text"
               value={paymentId}
               onChange={(e) => setPaymentId(e.target.value)}
-              className="w-full border rounded px-3 py-2"
+              className="w-full border rounded px-3 py-2 text-foreground bg-background dark:border-gray-600"
               placeholder="Ex: 127367866234"
             />
           </div>

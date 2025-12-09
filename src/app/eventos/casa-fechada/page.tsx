@@ -203,7 +203,7 @@ export default function DesventurasPage() {
                     type="text"
                     value={customer.name}
                     onChange={(e) => handleChange("name", e.target.value)}
-                    className={`w-full px-4 py-3 border-2 rounded-lg focus:border-yellow-400 focus:ring-2 focus:ring-yellow-200 ${errors.name ? "border-red-300 bg-red-50" : "border-gray-200"
+                    className={`w-full px-4 py-3 border-2 rounded-lg focus:border-yellow-400 focus:ring-2 focus:ring-yellow-200 text-foreground bg-background ${errors.name ? "border-red-300 bg-red-50" : "border-gray-200 dark:border-gray-600"
                       }`}
                     placeholder="Nome completo"
                   />
@@ -216,7 +216,7 @@ export default function DesventurasPage() {
                     type="email"
                     value={customer.email}
                     onChange={(e) => handleChange("email", e.target.value)}
-                    className={`w-full px-4 py-3 border-2 rounded-lg focus:border-yellow-400 focus:ring-2 focus:ring-yellow-200 ${errors.email ? "border-red-300 bg-red-50" : "border-gray-200"
+                    className={`w-full px-4 py-3 border-2 rounded-lg focus:border-yellow-400 focus:ring-2 focus:ring-yellow-200 text-foreground bg-background ${errors.email ? "border-red-300 bg-red-50" : "border-gray-200 dark:border-gray-600"
                       }`}
                     placeholder="E-mail"
                   />
@@ -228,7 +228,7 @@ export default function DesventurasPage() {
                   type="tel"
                   value={customer.phone}
                   onChange={(e) => handleChange("phone", e.target.value)}
-                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-yellow-400 focus:ring-2 focus:ring-yellow-200"
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-yellow-400 focus:ring-2 focus:ring-yellow-200 text-foreground bg-background dark:border-gray-600"
                   placeholder="Telefone (opcional)"
                 />
               </div>

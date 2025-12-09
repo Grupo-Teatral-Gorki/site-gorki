@@ -212,13 +212,13 @@ export default function AdminTransactionsPage() {
                                         id="event-filter"
                                         value={selectedEvent}
                                         onChange={(e) => setSelectedEvent(e.target.value)}
-                                        className="px-3 py-2 text-sm text-gray-900 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                        className="px-3 py-2 text-sm text-foreground bg-background border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:border-gray-600"
                                     >
-                                        <option value="all" className="text-gray-900">Todos os eventos ({allTransactions.length})</option>
+                                        <option value="all">Todos os eventos ({allTransactions.length})</option>
                                         {uniqueEvents.map((event) => {
                                             const count = allTransactions.filter(t => t.eventTitle === event).length;
                                             return (
-                                                <option key={event} value={event} className="text-gray-900">
+                                                <option key={event} value={event}>
                                                     {event} ({count})
                                                 </option>
                                             );
@@ -237,13 +237,13 @@ export default function AdminTransactionsPage() {
                                         id="status-filter"
                                         value={selectedStatus}
                                         onChange={(e) => setSelectedStatus(e.target.value)}
-                                        className="px-3 py-2 text-sm text-gray-900 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                        className="px-3 py-2 text-sm text-foreground bg-background border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:border-gray-600"
                                     >
-                                        <option value="all" className="text-gray-900">Todos os status ({allTransactions.length})</option>
+                                        <option value="all">Todos os status ({allTransactions.length})</option>
                                         {uniqueStatuses.map((status) => {
                                             const count = allTransactions.filter(t => t.status === status).length;
                                             return (
-                                                <option key={status} value={status} className="text-gray-900">
+                                                <option key={status} value={status}>
                                                     {getStatusText(status)} ({count})
                                                 </option>
                                             );

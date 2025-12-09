@@ -171,7 +171,7 @@ export default function AdminDesventurasPage() {
               value={titleFilter}
               onChange={(e) => setTitleFilter(e.target.value)}
               placeholder="Filtrar por evento..."
-              className="w-full border rounded px-3 py-2"
+              className="w-full border rounded px-3 py-2 text-foreground bg-background dark:border-gray-600"
             />
           </div>
         </div>
@@ -208,7 +208,7 @@ export default function AdminDesventurasPage() {
                             await navigator.clipboard.writeText(i.paymentId || '');
                             setCopiedId(i.paymentId || '');
                             setTimeout(() => setCopiedId(""), 1500);
-                          } catch {}
+                          } catch { }
                         }}
                       >
                         {i.paymentId}

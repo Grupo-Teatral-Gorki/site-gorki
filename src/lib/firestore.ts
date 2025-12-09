@@ -1,17 +1,17 @@
 // Firestore-based ticket storage for production
 import { initializeApp, getApps } from 'firebase/app';
-import { 
-  getFirestore, 
-  collection, 
-  doc, 
-  setDoc, 
-  getDoc, 
-  getDocs, 
-  query, 
-  where, 
+import {
+  getFirestore,
+  collection,
+  doc,
+  setDoc,
+  getDoc,
+  getDocs,
+  query,
+  where,
   orderBy,
   updateDoc,
-  Timestamp 
+  Timestamp
 } from 'firebase/firestore';
 
 interface TicketData {
@@ -66,6 +66,8 @@ interface PaymentData {
   ticketInteiraQty?: number;
   ticketMeiaQty?: number;
   totalAmount: number;
+  notes?: string;
+  isManual?: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -77,7 +79,7 @@ class FirestoreTicketStore {
   async set(ticketId: string, ticketData: TicketData): Promise<void> {
     try {
       const ticketRef = doc(db, this.ticketsCollection, ticketId);
-      
+
       // Convert date strings to Firestore Timestamps for better querying
       const firestoreData = {
         ...ticketData,
@@ -105,7 +107,7 @@ class FirestoreTicketStore {
       }
 
       const data = ticketSnap.data();
-      
+
       // Convert Firestore Timestamps back to ISO strings
       return {
         ticketId: data.ticketId,
@@ -136,11 +138,11 @@ class FirestoreTicketStore {
     try {
       const ticketsRef = collection(db, this.ticketsCollection);
       const q = query(
-        ticketsRef, 
+        ticketsRef,
         where('paymentId', '==', paymentId)
         // Removed orderBy to avoid index requirement - we'll sort in memory
       );
-      
+
       const querySnapshot = await getDocs(q);
       const tickets: TicketData[] = [];
 
@@ -181,7 +183,7 @@ class FirestoreTicketStore {
     try {
       const ticketsRef = collection(db, this.ticketsCollection);
       const querySnapshot = await getDocs(ticketsRef);
-      
+
       const paymentIds = new Set<string>();
       querySnapshot.forEach((doc) => {
         const data = doc.data();
@@ -225,7 +227,7 @@ class FirestoreTicketStore {
   async savePayment(paymentData: PaymentData): Promise<void> {
     try {
       const paymentRef = doc(db, this.paymentsCollection, paymentData.paymentId);
-      
+
       const firestoreData = {
         ...paymentData,
         createdAt: Timestamp.fromDate(new Date(paymentData.createdAt)),
