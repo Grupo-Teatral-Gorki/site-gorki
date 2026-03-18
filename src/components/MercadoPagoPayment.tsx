@@ -98,6 +98,12 @@ const MercadoPagoPayment: React.FC<MercadoPagoPaymentProps> = ({
 
       const data = await response.json();
 
+      if (!response.ok) {
+        const details = data?.details ? ` (${data.details})` : '';
+        onError(data?.error ? `${data.error}${details}` : 'Erro ao criar preferência de pagamento');
+        return;
+      }
+
       if (data.preferenceId) {
         setPreferenceId(data.preferenceId);
         setShowWallet(true);
@@ -114,7 +120,8 @@ const MercadoPagoPayment: React.FC<MercadoPagoPaymentProps> = ({
           }),
         });
       } else {
-        onError('Erro ao criar preferência de pagamento');
+        const details = data?.details ? ` (${data.details})` : '';
+        onError(data?.error ? `${data.error}${details}` : 'Erro ao criar preferência de pagamento');
       }
     } catch (error) {
       console.error('Error creating preference:', error);

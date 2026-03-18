@@ -3,6 +3,15 @@ import { NextRequest, NextResponse } from 'next/server';
 // Use the REST API approach instead of SDK to avoid import issues
 const MERCADOPAGO_BASE_URL = 'https://api.mercadopago.com';
 
+type MercadoPagoCredentialMode = 'test' | 'production' | 'unknown';
+
+function getCredentialMode(value?: string): MercadoPagoCredentialMode {
+  if (!value) return 'unknown';
+  if (value.startsWith('TEST-')) return 'test';
+  if (value.startsWith('APP_USR-')) return 'production';
+  return 'unknown';
+}
+
 // CORS headers
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -35,9 +44,25 @@ export async function POST(request: NextRequest) {
   try {
     const { amount, customerInfo, eventInfo, ticketQuantity, ticketType = 'inteira', ticketInteiraQty, ticketMeiaQty, transactionId } = await request.json();
 
-    if (!process.env.MERCADOPAGO_ACCESS_TOKEN) {
+    const accessToken = process.env.MERCADOPAGO_ACCESS_TOKEN?.trim();
+    const publicKey = process.env.NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY?.trim();
+
+    if (!accessToken) {
       return NextResponse.json(
         { error: 'MercadoPago access token not configured' },
+        { status: 500, headers: corsHeaders }
+      );
+    }
+
+    const accessTokenMode = getCredentialMode(accessToken);
+    const publicKeyMode = getCredentialMode(publicKey);
+
+    if (publicKey && accessTokenMode !== 'unknown' && publicKeyMode !== 'unknown' && accessTokenMode !== publicKeyMode) {
+      return NextResponse.json(
+        {
+          error: 'MercadoPago credentials mismatch',
+          details: `Public key is ${publicKeyMode} while access token is ${accessTokenMode}. Use keys from the same Mercado Pago app/account and environment.`,
+        },
         { status: 500, headers: corsHeaders }
       );
     }
@@ -95,7 +120,7 @@ export async function POST(request: NextRequest) {
     const response = await fetch(`${MERCADOPAGO_BASE_URL}/checkout/preferences`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${process.env.MERCADOPAGO_ACCESS_TOKEN}`,
+        'Authorization': `Bearer ${accessToken}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(preferenceData),
@@ -117,6 +142,7 @@ export async function POST(request: NextRequest) {
       preferenceId: result.id,
       initPoint: result.init_point,
       sandboxInitPoint: result.sandbox_init_point,
+      liveMode: !!result.live_mode,
     }, { headers: corsHeaders });
   } catch (error) {
     console.error('Error creating MercadoPago preference:', error);
