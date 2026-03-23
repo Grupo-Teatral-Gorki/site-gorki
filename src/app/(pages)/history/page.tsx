@@ -8,7 +8,7 @@ const Historia = () => {
   if (loading) {
     return (
       <motion.div
-        className="w-full flex flex-col items-center pt-10 px-2 mb-20 bg-white"
+        className="w-full flex flex-col items-center pt-10 pb-10 mb-20 bg-white"
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
@@ -29,7 +29,7 @@ const Historia = () => {
   if (historyData.length === 0) {
     return (
       <motion.div
-        className="w-full flex flex-col items-center pt-10 px-2 mb-20 bg-white"
+        className="w-full flex flex-col items-center pt-10 pb-10 mb-20 bg-white"
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
@@ -44,13 +44,13 @@ const Historia = () => {
 
   return (
     <motion.div
-      className="w-full flex flex-col items-center pt-10 px-2 mb-20 bg-white"
+      className="w-full flex flex-col items-center pt-10 pb-10 mb-20 bg-white"
       initial={{ opacity: 0, y: 24 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
     >
       <h1 className="text-4xl font-bold mb-4 text-black">História</h1>
-      <div className="max-w-4xl w-full flex flex-col gap-12 items-center">
+      <div className="max-w-6xl w-full flex flex-col gap-12 items-center">
         {historyData.map((item, index) => (
           <div
             key={item.alt || index}

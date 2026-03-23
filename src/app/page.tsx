@@ -1,6 +1,6 @@
 "use client";
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+// import { useEffect } from "react";
+// import { useRouter } from "next/navigation";
 import Hero from "../components/Hero";
 import UpcomingEvents from "../components/UpcomingEvents";
 import ImageSection from "../components/ImageSection";
@@ -8,12 +8,11 @@ import Gallery from "../components/Gallery";
 import { motion } from "framer-motion";
 
 const Index = () => {
-  const router = useRouter();
-
-  useEffect(() => {
-    // Redirect to casa-fechada event page
-    router.push("/eventos/casa-fechada");
-  }, [router]);
+  // Redirect disabled on this branch
+  // const router = useRouter();
+  // useEffect(() => {
+  //   router.push("/eventos/casa-fechada");
+  // }, [router]);
 
   return (
     <motion.div

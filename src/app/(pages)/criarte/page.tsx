@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 
 const GestaoDeCultura = () => (
   <motion.div
-    className="w-full flex flex-col items-center pt-10 px-2 mb-20 bg-white"
+    className="w-full flex flex-col items-center pt-10 pb-10 mb-20 bg-white"
     initial={{ opacity: 0, y: 24 }}
     animate={{ opacity: 1, y: 0 }}
     transition={{ duration: 0.6, ease: "easeOut" }}

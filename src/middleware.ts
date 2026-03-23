@@ -25,15 +25,8 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Only redirect in production. In development/localhost, allow normal routing.
-  const isProd = process.env.NODE_ENV === 'production';
-  if (!isProd) {
-    return NextResponse.next();
-  }
-
-  const url = request.nextUrl.clone();
-  url.pathname = '/eventos/casa-fechada';
-  return NextResponse.redirect(url);
+  // Redirects disabled on this branch - allow normal navigation
+  return NextResponse.next();
 }
 
 export const config = {

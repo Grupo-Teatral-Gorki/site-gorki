@@ -229,11 +229,111 @@ export default function AdminPage() {
     }));
   };
 
+  // About Us handlers
+  const handleAboutUsChange = (idx: number, field: keyof AboutUs, value: string) => {
+    setSiteData((prev) => ({
+      ...prev,
+      aboutUs: prev.aboutUs.map((item, i) =>
+        i === idx ? { ...item, [field]: value } : item
+      ),
+    }));
+  };
+
+  const addAboutUs = () => {
+    setSiteData((prev) => ({
+      ...prev,
+      aboutUs: [...prev.aboutUs, { description: "", image: "", alt: "" }],
+    }));
+  };
+
+  const removeAboutUs = (idx: number) => {
+    setSiteData((prev) => ({
+      ...prev,
+      aboutUs: prev.aboutUs.filter((_, i) => i !== idx),
+    }));
+  };
+
+  // History handlers
+  const handleHistoryChange = (idx: number, field: keyof History, value: string) => {
+    setSiteData((prev) => ({
+      ...prev,
+      history: prev.history.map((item, i) =>
+        i === idx ? { ...item, [field]: value } : item
+      ),
+    }));
+  };
+
+  const addHistory = () => {
+    setSiteData((prev) => ({
+      ...prev,
+      history: [...prev.history, { title: "", description: "", alt: "", image: "" }],
+    }));
+  };
+
+  const removeHistory = (idx: number) => {
+    setSiteData((prev) => ({
+      ...prev,
+      history: prev.history.filter((_, i) => i !== idx),
+    }));
+  };
+
+  // Catalog handlers
+  const handleCatalogChange = (idx: number, field: keyof Catalog, value: string) => {
+    setSiteData((prev) => ({
+      ...prev,
+      catalog: prev.catalog.map((item, i) =>
+        i === idx ? { ...item, [field]: value } : item
+      ),
+    }));
+  };
+
+  const addCatalog = () => {
+    setSiteData((prev) => ({
+      ...prev,
+      catalog: [...prev.catalog, { title: "", description: "", image: "" }],
+    }));
+  };
+
+  const removeCatalog = (idx: number) => {
+    setSiteData((prev) => ({
+      ...prev,
+      catalog: prev.catalog.filter((_, i) => i !== idx),
+    }));
+  };
+
+  // Gallery handlers
+  const handleGalleryChange = (idx: number, field: "src" | "alt", value: string) => {
+    setSiteData((prev) => ({
+      ...prev,
+      gallery: prev.gallery.map((item, i) =>
+        i === idx ? { ...item, [field]: value } : item
+      ),
+    }));
+  };
+
+  const addGalleryImage = () => {
+    setSiteData((prev) => ({
+      ...prev,
+      gallery: [...prev.gallery, { src: "", alt: "" }],
+    }));
+  };
+
+  const removeGalleryImage = (idx: number) => {
+    setSiteData((prev) => ({
+      ...prev,
+      gallery: prev.gallery.filter((_, i) => i !== idx),
+    }));
+  };
+
   // Accordion state
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({
     banners: true,
     events: false,
     courses: false,
+    aboutUs: false,
+    history: false,
+    catalog: false,
+    gallery: false,
   });
 
   const toggleSection = (section: string) => {
@@ -761,6 +861,328 @@ export default function AdminPage() {
                   >
                     <span className="text-lg">+</span>
                     Adicionar Curso
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* About Us Section */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+            <button
+              className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-gray-50 transition-colors"
+              onClick={() => toggleSection('aboutUs')}
+            >
+              <div>
+                <h2 className="text-xl font-semibold text-gray-900">Sobre Nós</h2>
+                <p className="text-sm text-gray-600 mt-1">Gerencie o conteúdo da página Sobre Nós</p>
+              </div>
+              <div className={`transform transition-transform ${openSections.aboutUs ? 'rotate-180' : ''}`}>
+                <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </button>
+
+            {openSections.aboutUs && (
+              <div className="border-t border-gray-200 p-6">
+                <div className="space-y-6">
+                  {siteData.aboutUs.map((item, idx) => (
+                    <div key={idx} className="bg-gray-50 rounded-lg border border-gray-200 p-6 relative">
+                      <button
+                        className="absolute top-4 right-4 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-full w-8 h-8 flex items-center justify-center transition-colors"
+                        title="Remover item"
+                        onClick={() => removeAboutUs(idx)}
+                      >
+                        <span className="text-xl font-bold">&times;</span>
+                      </button>
+
+                      <div className="space-y-4 pr-12">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Descrição
+                          </label>
+                          <textarea
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-foreground bg-background dark:border-gray-600"
+                            placeholder="Digite a descrição"
+                            rows={4}
+                            value={item.description}
+                            onChange={(e) => handleAboutUsChange(idx, "description", e.target.value)}
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Texto alternativo (alt)
+                          </label>
+                          <input
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-foreground bg-background dark:border-gray-600"
+                            placeholder="Descrição da imagem para acessibilidade"
+                            value={item.alt}
+                            onChange={(e) => handleAboutUsChange(idx, "alt", e.target.value)}
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Imagem
+                          </label>
+                          <FileUpload
+                            value={item.image}
+                            onChange={(url) => handleAboutUsChange(idx, "image", url)}
+                            folder="aboutus"
+                            fileName={`aboutus-${idx}`}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+
+                  <button
+                    className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
+                    onClick={addAboutUs}
+                  >
+                    <span className="text-lg">+</span>
+                    Adicionar Item
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* History Section */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+            <button
+              className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-gray-50 transition-colors"
+              onClick={() => toggleSection('history')}
+            >
+              <div>
+                <h2 className="text-xl font-semibold text-gray-900">História</h2>
+                <p className="text-sm text-gray-600 mt-1">Gerencie o conteúdo da página História</p>
+              </div>
+              <div className={`transform transition-transform ${openSections.history ? 'rotate-180' : ''}`}>
+                <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </button>
+
+            {openSections.history && (
+              <div className="border-t border-gray-200 p-6">
+                <div className="space-y-6">
+                  {siteData.history.map((item, idx) => (
+                    <div key={idx} className="bg-gray-50 rounded-lg border border-gray-200 p-6 relative">
+                      <button
+                        className="absolute top-4 right-4 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-full w-8 h-8 flex items-center justify-center transition-colors"
+                        title="Remover item"
+                        onClick={() => removeHistory(idx)}
+                      >
+                        <span className="text-xl font-bold">&times;</span>
+                      </button>
+
+                      <div className="space-y-4 pr-12">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Título
+                          </label>
+                          <input
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-foreground bg-background dark:border-gray-600"
+                            placeholder="Digite o título"
+                            value={item.title}
+                            onChange={(e) => handleHistoryChange(idx, "title", e.target.value)}
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Descrição
+                          </label>
+                          <textarea
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-foreground bg-background dark:border-gray-600"
+                            placeholder="Digite a descrição"
+                            rows={4}
+                            value={item.description}
+                            onChange={(e) => handleHistoryChange(idx, "description", e.target.value)}
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Texto alternativo (alt)
+                          </label>
+                          <input
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-foreground bg-background dark:border-gray-600"
+                            placeholder="Descrição da imagem para acessibilidade"
+                            value={item.alt}
+                            onChange={(e) => handleHistoryChange(idx, "alt", e.target.value)}
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Imagem
+                          </label>
+                          <FileUpload
+                            value={item.image}
+                            onChange={(url) => handleHistoryChange(idx, "image", url)}
+                            folder="history"
+                            fileName={`history-${idx}`}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+
+                  <button
+                    className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
+                    onClick={addHistory}
+                  >
+                    <span className="text-lg">+</span>
+                    Adicionar Item
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Catalog Section */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+            <button
+              className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-gray-50 transition-colors"
+              onClick={() => toggleSection('catalog')}
+            >
+              <div>
+                <h2 className="text-xl font-semibold text-gray-900">Catálogo</h2>
+                <p className="text-sm text-gray-600 mt-1">Gerencie o catálogo de peças e produções</p>
+              </div>
+              <div className={`transform transition-transform ${openSections.catalog ? 'rotate-180' : ''}`}>
+                <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </button>
+
+            {openSections.catalog && (
+              <div className="border-t border-gray-200 p-6">
+                <div className="space-y-6">
+                  {siteData.catalog.map((item, idx) => (
+                    <div key={idx} className="bg-gray-50 rounded-lg border border-gray-200 p-6 relative">
+                      <button
+                        className="absolute top-4 right-4 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-full w-8 h-8 flex items-center justify-center transition-colors"
+                        title="Remover item"
+                        onClick={() => removeCatalog(idx)}
+                      >
+                        <span className="text-xl font-bold">&times;</span>
+                      </button>
+
+                      <div className="space-y-4 pr-12">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Título
+                          </label>
+                          <input
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-foreground bg-background dark:border-gray-600"
+                            placeholder="Digite o título"
+                            value={item.title}
+                            onChange={(e) => handleCatalogChange(idx, "title", e.target.value)}
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Descrição
+                          </label>
+                          <textarea
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-foreground bg-background dark:border-gray-600"
+                            placeholder="Digite a descrição"
+                            rows={4}
+                            value={item.description}
+                            onChange={(e) => handleCatalogChange(idx, "description", e.target.value)}
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Imagem
+                          </label>
+                          <FileUpload
+                            value={item.image}
+                            onChange={(url) => handleCatalogChange(idx, "image", url)}
+                            folder="catalog"
+                            fileName={`catalog-${idx}`}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+
+                  <button
+                    className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
+                    onClick={addCatalog}
+                  >
+                    <span className="text-lg">+</span>
+                    Adicionar Item
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Gallery Section */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+            <button
+              className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-gray-50 transition-colors"
+              onClick={() => toggleSection('gallery')}
+            >
+              <div>
+                <h2 className="text-xl font-semibold text-gray-900">Galeria</h2>
+                <p className="text-sm text-gray-600 mt-1">Gerencie as imagens da galeria</p>
+              </div>
+              <div className={`transform transition-transform ${openSections.gallery ? 'rotate-180' : ''}`}>
+                <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </button>
+
+            {openSections.gallery && (
+              <div className="border-t border-gray-200 p-6">
+                <div className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {siteData.gallery.map((item, idx) => (
+                      <div key={idx} className="bg-gray-50 rounded-lg border border-gray-200 p-4 relative">
+                        <button
+                          className="absolute top-2 right-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-full w-6 h-6 flex items-center justify-center transition-colors z-10"
+                          title="Remover imagem"
+                          onClick={() => removeGalleryImage(idx)}
+                        >
+                          <span className="text-sm font-bold">&times;</span>
+                        </button>
+
+                        <div className="space-y-3">
+                          <FileUpload
+                            value={item.src}
+                            onChange={(url) => handleGalleryChange(idx, "src", url)}
+                            folder="gallery"
+                            fileName={`gallery-${idx}`}
+                          />
+                          <input
+                            className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-foreground bg-background dark:border-gray-600"
+                            placeholder="Texto alternativo (alt)"
+                            value={item.alt}
+                            onChange={(e) => handleGalleryChange(idx, "alt", e.target.value)}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <button
+                    className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
+                    onClick={addGalleryImage}
+                  >
+                    <span className="text-lg">+</span>
+                    Adicionar Imagem
                   </button>
                 </div>
               </div>
