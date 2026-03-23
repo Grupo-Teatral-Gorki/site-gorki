@@ -6,26 +6,20 @@ import Image from "next/image";
 const SESSIONS = [
   {
     id: "casa-fechada-001-13-12",
-    date: "13-12-2025",
+    date: "29-04-2026",
     time: "20:00",
-    displayDate: "13 de Dezembro de 2025",
-  },
-  {
-    id: "casa-fechada-001-14-12",
-    date: "14-12-2025",
-    time: "20:00",
-    displayDate: "14 de Dezembro de 2025",
+    displayDate: "24 de Abril de 2026",
   },
 ];
 
 const EVENT = {
   title: "A Casa Fechada",
-  location: "Arena Porão",
+  location: "Teatro Municipal de Ribeirão Preto",
   image: "https://firebasestorage.googleapis.com/v0/b/itapevi-cce4e.firebasestorage.app/o/WhatsApp%20Image%202025-09-30%20at%2017.40.58.jpeg?alt=media&token=67add5bd-893c-49fc-86ef-287e1040f83a",
   // Preços em string no formato já usado no site
   price: "R$ 00,00",
-  priceInteira: "40.00",
-  priceMeia: "20.00",
+  priceInteira: "00.10",
+  priceMeia: "00.05",
   release: `• Peça: A CASA FECHADA 
 • Texto de: Roberto Gomes 
 • Direção: Bolinha Monteiro 
