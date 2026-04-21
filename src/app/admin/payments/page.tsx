@@ -101,7 +101,7 @@ export default function AdminPaymentsPage() {
       id: "casa-fechada-001-29-04",
       title: "A Casa Fechada",
       date: "29-04-2026",
-      displayDate: "24 de Abril de 2026 - 20:00",
+      displayDate: "29 de Abril de 2026 - 20:00",
       location: "Teatro Municipal de Ribeirão Preto",
       price: "R$ 40,00",
       priceInteira: "40.00",
