@@ -97,6 +97,16 @@ export default function AdminPaymentsPage() {
       priceInteira: "40.00",
       priceMeia: "20.00",
     },
+    {
+      id: "casa-fechada-001-29-04",
+      title: "A Casa Fechada",
+      date: "29-04-2026",
+      displayDate: "24 de Abril de 2026 - 20:00",
+      location: "Teatro Municipal de Ribeirão Preto",
+      price: "R$ 40,00",
+      priceInteira: "40.00",
+      priceMeia: "20.00",
+    },
   ];
 
   // Combine site events with Casa Fechada sessions
@@ -334,7 +344,7 @@ export default function AdminPaymentsPage() {
                     id="event-filter"
                     value={selectedEvent}
                     onChange={(e) => setSelectedEvent(e.target.value)}
-                    className="px-3 py-2 text-sm text-foreground bg-background border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:border-gray-600"
+                    className="px-3 py-2 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   >
                     <option value="all">Todos os eventos ({allPayments.length})</option>
                     {uniqueEvents.map((event) => {
@@ -359,7 +369,7 @@ export default function AdminPaymentsPage() {
                     id="status-filter"
                     value={selectedStatus}
                     onChange={(e) => setSelectedStatus(e.target.value)}
-                    className="px-3 py-2 text-sm text-foreground bg-background border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:border-gray-600"
+                    className="px-3 py-2 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   >
                     <option value="all">Todos os status ({allPayments.length})</option>
                     {uniqueStatuses.map((status) => {
@@ -498,9 +508,6 @@ export default function AdminPaymentsPage() {
                     &times;
                   </button>
                 </div>
-                <p className="text-sm text-gray-600 mt-2">
-                  Use esta opção para casos especiais, cortesias ou correções.
-                </p>
               </div>
 
               <div className="p-6 space-y-4">
@@ -509,7 +516,7 @@ export default function AdminPaymentsPage() {
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Eventos <span className="text-red-500">*</span>
                   </label>
-                  <div className="border border-gray-300 rounded-lg p-3 max-h-48 overflow-y-auto bg-background">
+                  <div className="border border-gray-300 rounded-lg p-3 max-h-48 overflow-y-auto bg-white">
                     {!siteData ? (
                       <p className="text-sm text-gray-500">Carregando eventos...</p>
                     ) : events.length === 0 ? (
@@ -553,7 +560,7 @@ export default function AdminPaymentsPage() {
                     value={manualForm.customerName}
                     onChange={(e) => setManualForm({ ...manualForm, customerName: e.target.value })}
                     placeholder="Digite o nome completo"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-foreground bg-background dark:border-gray-600"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-900 bg-white"
                   />
                 </div>
 
@@ -567,7 +574,7 @@ export default function AdminPaymentsPage() {
                     value={manualForm.customerEmail}
                     onChange={(e) => setManualForm({ ...manualForm, customerEmail: e.target.value })}
                     placeholder="email@exemplo.com"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-foreground bg-background dark:border-gray-600"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-900 bg-white"
                   />
                 </div>
 
@@ -582,7 +589,7 @@ export default function AdminPaymentsPage() {
                       min="0"
                       value={manualForm.ticketInteiraQty}
                       onChange={(e) => setManualForm({ ...manualForm, ticketInteiraQty: parseInt(e.target.value) || 0 })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-foreground bg-background dark:border-gray-600"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-900 bg-white"
                     />
                   </div>
                   <div>
@@ -594,7 +601,7 @@ export default function AdminPaymentsPage() {
                       min="0"
                       value={manualForm.ticketMeiaQty}
                       onChange={(e) => setManualForm({ ...manualForm, ticketMeiaQty: parseInt(e.target.value) || 0 })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-foreground bg-background dark:border-gray-600"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-900 bg-white"
                     />
                   </div>
                 </div>
@@ -609,7 +616,7 @@ export default function AdminPaymentsPage() {
                     onChange={(e) => setManualForm({ ...manualForm, notes: e.target.value })}
                     placeholder="Ex: Cortesia, Correção de pedido, etc."
                     rows={3}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-foreground bg-background dark:border-gray-600"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-900 bg-white"
                   />
                 </div>
 
