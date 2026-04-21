@@ -8,7 +8,7 @@ const SESSIONS = [
     id: "casa-fechada-001-13-12",
     date: "29-04-2026",
     time: "20:00",
-    displayDate: "24 de Abril de 2026",
+    displayDate: "29 de Abril de 2026",
   },
 ];
 
