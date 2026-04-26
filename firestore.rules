@@ -16,5 +16,10 @@ service cloud.firestore {
     match /siteData/{document=**} {
       allow read, write: if true;
     }
+    
+    // Allow read/write access to site collection
+    match /site/{document=**} {
+      allow read, write: if true;
+    }
   }
 }
