@@ -35,22 +35,30 @@ export default function ValidateTicketPage() {
     };
   }, [scanner]);
 
+  // Initialize scanner after DOM element is available
+  useEffect(() => {
+    if (isScanning && !scanner) {
+      const qrReaderElement = document.getElementById('qr-reader');
+      if (qrReaderElement) {
+        const newScanner = new Html5QrcodeScanner(
+          'qr-reader',
+          {
+            fps: 10,
+            qrbox: { width: 250, height: 250 },
+            aspectRatio: 1.0
+          },
+          false
+        );
+
+        newScanner.render(onScanSuccess, onScanFailure);
+        setScanner(newScanner);
+      }
+    }
+  }, [isScanning, scanner]);
+
   const startScanning = () => {
     setIsScanning(true);
     setScanResult(null);
-
-    const newScanner = new Html5QrcodeScanner(
-      'qr-reader',
-      {
-        fps: 10,
-        qrbox: { width: 250, height: 250 },
-        aspectRatio: 1.0
-      },
-      false
-    );
-
-    newScanner.render(onScanSuccess, onScanFailure);
-    setScanner(newScanner);
   };
 
   const stopScanning = () => {
@@ -150,7 +158,7 @@ export default function ValidateTicketPage() {
                     value={manualCode}
                     onChange={(e) => setManualCode(e.target.value)}
                     placeholder="Cole o código do QR aqui..."
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-foreground bg-background dark:border-gray-600"
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
                   />
                   <button
                     onClick={validateManualCode}
